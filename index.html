@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trainer">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>Trainer — 12 Week Plan</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230a0a0a'/><text x='90' y='118' font-family='-apple-system,Helvetica' font-size='90' font-weight='800' text-anchor='middle' fill='%23f5a623'>T</text></svg>">
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin:0; padding:0; height:100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #0a0a0a;
+  color: #f2f2f2;
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  line-height: 1.45;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior-y: contain;
+}
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 64px; }
+header {
+  padding: 16px 20px 8px;
+  position: sticky; top: 0;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 10;
+  border-bottom: 1px solid #1f1f1f;
+}
+header h1 { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+header .sub { font-size: 13px; color: #888; margin-top: 2px; }
+
+main { flex: 1; padding: 12px 16px 20px; }
+
+nav.tabbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  background: rgba(15,15,15,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid #1f1f1f;
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+  z-index: 20;
+  max-width: 480px;
+  margin: 0 auto;
+}
+nav.tabbar button {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 11px;
+  padding: 6px 4px;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-family: inherit;
+  font-weight: 500;
+}
+nav.tabbar button.active { color: #f5a623; }
+nav.tabbar button .ico {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.btn {
+  background: #1c1c1c;
+  color: #f2f2f2;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.btn:active { background: #2a2a2a; }
+.btn-primary {
+  background: #f5a623;
+  color: #0a0a0a;
+  border-color: #f5a623;
+  font-weight: 600;
+}
+.btn-primary:active { background: #d88f15; }
+.btn-danger { color: #ff6b6b; border-color: #3a1f1f; background: #1a0f0f; }
+
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; }
+
+.card {
+  background: #141414;
+  border: 1px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  transition: background 0.15s;
+}
+.card.tappable { cursor: pointer; }
+.card.tappable:active { background: #1a1a1a; }
+.card .row-title { font-size: 16px; font-weight: 600; }
+.card .row-meta { font-size: 13px; color: #888; margin-top: 3px; }
+
+.week-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.week-chip {
+  background: #1c1c1c;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 10px 4px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: #aaa;
+  font-weight: 500;
+}
+.week-chip.active {
+  background: #f5a623;
+  color: #0a0a0a;
+  border-color: #f5a623;
+  font-weight: 700;
+}
+.week-chip .num { display: block; font-size: 16px; font-weight: 700; margin-bottom: 1px; }
+.week-chip.done::after {
+  content: "•";
+  color: #4ade80;
+  font-size: 18px;
+  line-height: 0;
+  margin-left: 3px;
+}
+.week-chip.active.done::after { color: #0a0a0a; }
+
+.day-card { display: flex; align-items: center; gap: 12px; }
+.day-card .day-badge {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: #1f1f1f;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+  flex-shrink: 0;
+  color: #ccc;
+}
+.day-card.done .day-badge {
+  background: #1f3a1f; color: #4ade80;
+}
+.day-card.rest .day-badge {
+  background: #2a2014; color: #f5a623;
+}
+.day-card .day-info { flex: 1; min-width: 0; }
+.day-card .day-info .t { font-size: 15px; font-weight: 600; }
+.day-card .day-info .m { font-size: 12px; color: #888; margin-top: 2px; }
+.day-card .chev { color: #555; font-size: 18px; }
+
+.exercise-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px;
+  background: #141414;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+.exercise-row.done { opacity: 0.55; }
+.exercise-row.done .ex-title { text-decoration: line-through; }
+.checkbox {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid #3a3a3a;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  margin-top: 2px;
+  transition: all 0.15s;
+}
+.checkbox.checked { background: #f5a623; border-color: #f5a623; }
+.checkbox.checked::after {
+  content: "";
+  width: 7px; height: 12px;
+  border: solid #0a0a0a;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+.exercise-row .ex-body { flex: 1; min-width: 0; }
+.ex-title { font-size: 15px; font-weight: 600; line-height: 1.3; }
+.ex-line { font-size: 13px; color: #999; margin-top: 4px; line-height: 1.4; }
+
+.section-title {
+  font-size: 12px; color: #888;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin: 18px 4px 8px;
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 4px; background: #1f1f1f; border-radius: 2px;
+  overflow: hidden; margin: 14px 0;
+}
+.progress-bar > div {
+  height: 100%; background: #f5a623;
+  transition: width 0.3s;
+}
+.progress-text { font-size: 13px; color: #888; display: flex; justify-content: space-between; }
+
+.muscle-group { margin-bottom: 18px; }
+.muscle-name { font-size: 13px; font-weight: 600; color: #f5a623; margin: 0 4px 6px; text-transform: uppercase; letter-spacing: 0.04em;}
+.muscle-list { background: #141414; border: 1px solid #1f1f1f; border-radius: 12px; }
+.muscle-list .ex-item {
+  padding: 12px 14px;
+  border-bottom: 1px solid #1f1f1f;
+  font-size: 14px;
+}
+.muscle-list .ex-item:last-child { border-bottom: none; }
+.ex-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ex-item .ex-name { flex: 1; }
+.video-btn {
+  flex-shrink: 0;
+  border: 1px solid #3a2d17;
+  border-radius: 8px;
+  background: #241b0d;
+  color: #f5a623;
+  padding: 6px 9px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.video-btn:active { background: #3a2a12; }
+.video-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,.86);
+}
+.video-modal[hidden] { display: none; }
+.video-dialog {
+  width: min(100%, 640px);
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 14px;
+}
+.video-dialog h2 { font-size: 17px; margin: 0 34px 12px 0; }
+.video-dialog video {
+  display: block;
+  width: 100%;
+  max-height: 70vh;
+  border-radius: 9px;
+  background: #000;
+}
+.video-close {
+  position: absolute;
+  margin: -2px 0 0 -38px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: #292929;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: #555;
+  font-size: 14px;
+}
+
+.history-item {
+  background: #141414; border: 1px solid #1f1f1f; border-radius: 12px;
+  padding: 12px 14px; margin-bottom: 8px;
+}
+.history-item .h-date { font-size: 11px; color: #f5a623; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;}
+.history-item .h-title { font-size: 15px; font-weight: 600; margin-top: 2px; }
+.history-item .h-meta { font-size: 12px; color: #888; margin-top: 3px; }
+
+.kv-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px;
+  background: #141414;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.kv-row .l { font-size: 15px; }
+.kv-row .r { font-size: 14px; color: #888; }
+
+.note {
+  font-size: 12px; color: #666;
+  padding: 12px 16px; background: #0f0f0f; border-radius: 10px;
+  border-left: 2px solid #f5a623;
+  margin-top: 12px;
+}
+
+.back-btn {
+  background: none; border: none; color: #f5a623;
+  font-size: 15px; padding: 4px 0; cursor: pointer;
+  font-family: inherit; font-weight: 500;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+.complete-bar {
+  position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 32px); max-width: 448px;
+  z-index: 15;
+  padding: 0 16px;
+}
+.complete-bar .btn-primary { width: 100%; padding: 14px; font-size: 16px; box-shadow: 0 6px 20px rgba(245,166,35,0.3);}
+
+@media (max-width: 360px) {
+  header h1 { font-size: 20px; }
+  .week-strip { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1 id="hdr-title">Trainer</h1>
+    <div class="sub" id="hdr-sub">12 Week Plan</div>
+  </header>
+  <main id="main"></main>
+  <nav class="tabbar">
+    <button data-tab="plan" class="active"><span class="ico">▦</span><span>Plan</span></button>
+    <button data-tab="exercises"><span class="ico">≡</span><span>Exercises</span></button>
+    <button data-tab="history"><span class="ico">◷</span><span>History</span></button>
+    <button data-tab="more"><span class="ico">⚙</span><span>More</span></button>
+  </nav>
+</div>
+<div class="video-modal" id="video-modal" hidden>
+  <div class="video-dialog" role="dialog" aria-modal="true" aria-labelledby="video-title">
+    <button class="video-close" id="video-close" aria-label="Close video">×</button>
+    <h2 id="video-title"></h2>
+    <video id="video-player" controls playsinline preload="metadata"></video>
+  </div>
+</div>
+
+<script type="application/json" id="trainer-data">{"muscles":[{"id":1,"name":"Legs"},{"id":2,"name":"Calves"},{"id":3,"name":"Back"},{"id":4,"name":"Biceps"},{"id":5,"name":"Triceps"},{"id":6,"name":"Chest"},{"id":7,"name":"Abs"},{"id":8,"name":"Shoulders"}],"exercises":[{"name":"Barbell Shrugs","category":"Shoulders","video":"barbellshrug.mp4","muscleId":null,"favorite":false},{"name":"Behind the Neck Smith Machine Overhead Shoulder Press","category":"Shoulders","video":"smithmachineoverheadshoulderpressbehindtheneck.mp4","muscleId":null,"favorite":false},{"name":"Bench Dips","category":"Triceps","video":"benchdips.mp4","muscleId":null,"favorite":false},{"name":"Bent Over Barbell Row","category":"Back","video":"bentoverbarbellrow.mp4","muscleId":null,"favorite":false},{"name":"Bent Over Two Dumbbell Row","category":"Back","video":"bentovertwodumbbellrow.mp4","muscleId":null,"favorite":false},{"name":"Box Squats","category":"Legs","video":"boxsquats.mp4","muscleId":null,"favorite":false},{"name":"Cable Crossover","category":"Chest","video":"cablecrossover.mp4","muscleId":null,"favorite":false},{"name":"Cable Curls","category":"Biceps","video":"cablecurls.mp4","muscleId":null,"favorite":false},{"name":"Calf Press On The Leg Press Machine","category":"Calves","video":"calfpressonthelegpressmachine.mp4","muscleId":null,"favorite":false},{"name":"Chin Up","category":"Back","video":"chinup.mp4","muscleId":null,"favorite":false},{"name":"Close Grip Smith Machine Benchpress","category":"Triceps","video":"smithmachineclosegripbenchpress.mp4","muscleId":null,"favorite":false},{"name":"Closed Grip Bench Press","category":"Triceps","video":"closedgripbenchpresses.mp4","muscleId":null,"favorite":false},{"name":"Concentration Curls","category":"Biceps","video":"concentrationcurls.mp4","muscleId":null,"favorite":false},{"name":"Decline Bench Press","category":"Chest","video":"declinebenchpress.mp4","muscleId":null,"favorite":false},{"name":"Decline Crunch","category":"Abs","video":"declinecrunch.mp4","muscleId":null,"favorite":false},{"name":"Dip Machine","category":"Triceps","video":"dipmachine.mp4","muscleId":null,"favorite":false},{"name":"Donkey Calf Raises","category":"Calves","video":"donkeycalfraises.mp4","muscleId":null,"favorite":false},{"name":"Dumbbell Shoulder Press","category":"Shoulders","video":"dumbbellshoulderpress.mp4","muscleId":null,"favorite":false},{"name":"Dumbbell Shrug","category":"Shoulders","video":"dumbbellshrug.mp4","muscleId":null,"favorite":false},{"name":"Dumbell Alternate Bicep Curls","category":"Biceps","video":"dumbellalternatebicepcurl.mp4","muscleId":null,"favorite":false},{"name":"Dumbell Lunges","category":"Legs","video":"dumbelllunges.mp4","muscleId":null,"favorite":false},{"name":"Dumbell One Arm Shoulder Press","category":"Shoulders","video":"dumbellonearmshoulderpress.mp4","muscleId":null,"favorite":false},{"name":"EZ Bar Curls","category":"Biceps","video":"ezbarcurl.mp4","muscleId":null,"favorite":false},{"name":"Flat Dumbbell Press","category":"Chest","video":"flatdumbbellpress.mp4","muscleId":null,"favorite":false},{"name":"Flat Dumbell Flys","category":"Chest","video":"flatdumbellflys.mp4","muscleId":null,"favorite":false},{"name":"Front Plate Raise","category":"Shoulders","video":"frontplateraise.mp4","muscleId":null,"favorite":false},{"name":"Front Raises","category":"Shoulders","video":"frontraises.mp4","muscleId":null,"favorite":false},{"name":"Hack Squats","category":"Legs","video":"hacksquats.mp4","muscleId":null,"favorite":false},{"name":"Hammer Curls","category":"Biceps","video":"hammercurls.mp4","muscleId":null,"favorite":false},{"name":"Hamstring Curl","category":"Legs","video":"hamstringcurl.mp4","muscleId":null,"favorite":false},{"name":"Hanging Leg Raises","category":"Legs","video":"hanginglegraises.mp4","muscleId":null,"favorite":false},{"name":"Hyperextensions","category":"Back","video":"hyperextensions.mp4","muscleId":null,"favorite":false},{"name":"Incline Cable Flys","category":"Chest","video":"inclinecableflys.mp4","muscleId":null,"favorite":false},{"name":"Incline Dumbbell Flys with Twist","category":"Chest","video":"inclinedumbbellflyswithtwist.mp4","muscleId":null,"favorite":false},{"name":"Incline Dumbell Flys","category":"Chest","video":"inclinedumbellflys.mp4","muscleId":null,"favorite":false},{"name":"Incline Lying Leg Raise","category":"Legs","video":"inclinelyinglegraise.mp4","muscleId":null,"favorite":false},{"name":"Leg Extensions","category":"Legs","video":"legextensions.mp4","muscleId":null,"favorite":false},{"name":"Legs on Bench Situp","category":"Abs","video":"situplegsonbench.mp4","muscleId":null,"favorite":false},{"name":"Lying Cable Extensions","category":"Triceps","video":"lyingcableextensions.mp4","muscleId":null,"favorite":false},{"name":"Lying Delt Raise","category":"Shoulders","video":"lyingdeltraise.mp4","muscleId":null,"favorite":false},{"name":"Lying Dumbbell Tricep Extension","category":"Triceps","video":"lyingdumbbelltricepextension.mp4","muscleId":null,"favorite":false},{"name":"Lying Hamstring Curl","category":"Legs","video":"lyinghamstringcurl.mp4","muscleId":null,"favorite":false},{"name":"Lying Leg Raises","category":"Legs","video":"lyinglegraises.mp4","muscleId":null,"favorite":false},{"name":"Machine Benchpress","category":"Chest","video":"machinebenchpress.mp4","muscleId":null,"favorite":false},{"name":"Machine Preacher Curls","category":"Biceps","video":"machinepreachercurls.mp4","muscleId":null,"favorite":false},{"name":"Machine Shoulder Press","category":"Shoulders","video":"machineshoulderpress.mp4","muscleId":null,"favorite":false},{"name":"Modified Pushup","category":"Chest","video":"modifiedpushup.mp4","muscleId":null,"favorite":false},{"name":"One Arm Dumbbell Preacher Curls","category":"Biceps","video":"onearmdumbbellpreachercurl.mp4","muscleId":null,"favorite":false},{"name":"One Arm Dumbell Row","category":"Back","video":"onearmdumbellrow.mp4","muscleId":null,"favorite":false},{"name":"One Arm Machine Shoulder Military Press","category":"Shoulders","video":"machineshoulderpressmilitaryonearm.mp4","muscleId":null,"favorite":false},{"name":"Overhead Cable Extensions","category":"Triceps","video":"overheadcableextensions.mp4","muscleId":null,"favorite":false},{"name":"Overhead Dumbbell Extension","category":"Triceps","video":"overheaddumbbellextension.mp4","muscleId":null,"favorite":false},{"name":"Partial Leg Extensions","category":"Legs","video":"partiallegextensions.mp4","muscleId":null,"favorite":false},{"name":"Preacher Curls","category":"Biceps","video":"preachercurls.mp4","muscleId":null,"favorite":false},{"name":"Pushups Close and Wide","category":"Chest","video":"pushupscloseandwide.mp4","muscleId":null,"favorite":false},{"name":"Rack Squats","category":"Legs","video":"racksquats.mp4","muscleId":null,"favorite":false},{"name":"Rear Delt Raises","category":"Shoulders","video":"reardeltraises.mp4","muscleId":null,"favorite":false},{"name":"Reverse Cable Pushdown","category":"Triceps","video":"reversecablepushdown.mp4","muscleId":null,"favorite":false},{"name":"Reverse Grip Hammer Pulldowns","category":"Back","video":"reversegriphammerpulldowns.mp4","muscleId":null,"favorite":false},{"name":"Reverse Grip Pulldown","category":"Back","video":"reversegrippulldown.mp4","muscleId":null,"favorite":false},{"name":"Reverse Machine Flys","category":"Shoulders","video":"reversemachineflys.mp4","muscleId":null,"favorite":false},{"name":"Rockers","category":"Triceps","video":"rockers.mp4","muscleId":null,"favorite":false},{"name":"Romanian Deadlift","category":"Back","video":"romaniandeadlift.mp4","muscleId":null,"favorite":false},{"name":"Rope Extension","category":"Triceps","video":"ropeextension.mp4","muscleId":null,"favorite":false},{"name":"Seated Barbell Press Behind the Neck","category":"Shoulders","video":"seatedbarbellpressbehindtheneck.mp4","muscleId":null,"favorite":false},{"name":"Seated Bent Over Rear Delt Raise","category":"Shoulders","video":"seatedbentoverreardeltraise.mp4","muscleId":null,"favorite":false},{"name":"Seated Cable Rows","category":"Back","video":"seatedcablerows.mp4","muscleId":null,"favorite":false},{"name":"Seated  Calf Press","category":"Calves","video":"seatedcalfpress.mp4","muscleId":null,"favorite":false},{"name":"Seated Dumbbell Raise","category":"Shoulders","video":"seateddumbbellraise.mp4","muscleId":null,"favorite":false},{"name":"Seated Military Barbell Press","category":"Shoulders","video":"seatedbarbellmilitarypress.mp4","muscleId":null,"favorite":false},{"name":"Side Lateral Raise","category":"Shoulders","video":"sidelateralraise.mp4","muscleId":null,"favorite":false},{"name":"Side Lateral Raise Behind the Back","category":"Shoulders","video":"sidelateralraisebehindback.mp4","muscleId":null,"favorite":false},{"name":"Sit Ups","category":"Abs","video":"situp.mp4","muscleId":null,"favorite":false},{"name":"Skull Crusher","category":"Triceps","video":"skullcrusher.mp4","muscleId":null,"favorite":false},{"name":"Smith Machine Overhead Shoulder Press","category":"Shoulders","video":"smithmachineoverheadshoulderpress.mp4","muscleId":null,"favorite":false},{"name":"Smith Machine Shrugs","category":"Shoulders","video":"smithmachineshrug.mp4","muscleId":null,"favorite":false},{"name":"Smith Stiff Legged Deadlift","category":"Legs","video":"smithstiffleggeddeadlift.mp4","muscleId":null,"favorite":false},{"name":"Spider Curls","category":"Biceps","video":"spidercurl.mp4","muscleId":null,"favorite":false},{"name":"Squats","category":"Legs","video":"squats.mp4","muscleId":null,"favorite":false},{"name":"Standing Calf Press","category":"Calves","video":"standingcalfpress.mp4","muscleId":null,"favorite":false},{"name":"Standing Leg Curl","category":"Legs","video":"standinglegcurl.mp4","muscleId":null,"favorite":false},{"name":"Standing Low Pulley Delt Raise","category":"Shoulders","video":"standinglowpulleydeltraise.mp4","muscleId":null,"favorite":false},{"name":"Stiff Legged Barbell Deadlift","category":"Legs","video":"stiffleggedbarbelldeadlift.mp4","muscleId":null,"favorite":false},{"name":"Straight Arm Pulldown","category":"Back","video":"straightarmpulldown.mp4","muscleId":null,"favorite":false},{"name":"Straight Arm Pullover","category":"Chest","video":"straightarmpullover.mp4","muscleId":null,"favorite":false},{"name":"Tricep Dips","category":"Triceps","video":"tricepdips.mp4","muscleId":null,"favorite":false},{"name":"Tricep Pushdown","category":"Triceps","video":"triceppushdown.mp4","muscleId":null,"favorite":false},{"name":"Triceps Pushdown V-Bar","category":"Triceps","video":"tricepspushdownvbar.mp4","muscleId":null,"favorite":false},{"name":"Twists","category":"Abs","video":"twists.mp4","muscleId":null,"favorite":false},{"name":"Unilateral Leg Extensions","category":"Legs","video":"unilaterallegextensions.mp4","muscleId":null,"favorite":false},{"name":"Upright Barbell Row","category":"Shoulders","video":"uprightbarbellrow.mp4","muscleId":null,"favorite":false},{"name":"V Bar Pullup Legs Elevated","category":"Back","video":"vbarpulluplegselevated.mp4","muscleId":null,"favorite":false},{"name":"Walking Lunges","category":"Legs","video":"walkinglunges.mp4","muscleId":null,"favorite":false},{"name":"Wide Grip Barbell Curls","category":"Biceps","video":"widegripbarbellcurls.mp4","muscleId":null,"favorite":false},{"name":"Wide Grip Lat Pulldown","category":"Back","video":"widegriplatpulldown.mp4","muscleId":null,"favorite":false},{"name":"Leg Press","category":"Legs","video":"legpress.mp4","muscleId":"1","favorite":false},{"name":"Seated Barbell Twist","category":"Abs","video":"seatedbarbelltwist.mp4","muscleId":"7","favorite":false},{"name":"Weighted Crunches","category":"Abs","video":"weightedcrunches.mp4","muscleId":"7","favorite":false},{"name":"Weighted Situp","category":"Abs","video":"weightedsitup.mp4","muscleId":"7","favorite":false}],"plan":{"1":{"Day 1: Legs":[{"pKey":1,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":2,"title":"Leg Press","line1":"4-5 warm-up sets of 10-12 reps","line2":"3 sets to failure in 12-15 reps","videoID":1,"heading":""},{"pKey":3,"title":"Hamstring Curl","line1":"2 warm-up sets of 15 reps","line2":"3 sets to failure in 12-15 reps","videoID":3,"heading":""},{"pKey":4,"title":"Lying Hamstring Curl","line1":"2 warm-up sets of 15 resp","line2":"3 sets to failure in 12-15 reps","videoID":2,"heading":""},{"pKey":5,"title":"Leg Extensions","line1":"2 warm-up sets of 15-20 reps","line2":"2 sets to failure in 15-20 reps","videoID":4,"heading":""},{"pKey":6,"title":"Hack Squat","line1":"2 warm-up sets of 15-20 reps","line2":"3 sets to failure in 20-30 reps","videoID":5,"heading":""},{"pKey":7,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""}],"Day 2: Chest & Triceps":[{"pKey":8,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":9,"title":"Flat Dumbbell Press","line1":"3 warm-up sets of 6-10 reps","line2":"3 sets to failure in 6-10 reps","videoID":46,"heading":""},{"pKey":10,"title":"Incline Flyes","line1":"2 sets to failure in 8-15 reps","line2":"","videoID":29,"heading":""},{"pKey":11,"title":"Straight-Arm Pullover","line1":"2 sets to failure in 10-12 reps","line2":"","videoID":47,"heading":""},{"pKey":12,"title":"Rope Extension","line1":"3 sets to failure in 10-12 reps","line2":"","videoID":48,"heading":""},{"pKey":13,"title":"Lying Cable Extensions","line1":"3 sets to failure in 10-12 reps","line2":"","videoID":49,"heading":""},{"pKey":14,"title":"Overhead Dumbbell Extension","line1":"3 sets to failure in 10-12 reps","line2":"","videoID":50,"heading":""},{"pKey":15,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""}],"Day 3: Rest":[{"pKey":16,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 4: Back & Biceps":[{"pKey":17,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":18,"title":"Reverse-Grip Pulldowns","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 8-10 reps","videoID":20,"heading":""},{"pKey":19,"title":"Bent Over Barbell Row","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":21,"heading":""},{"pKey":20,"title":"Hyperextensions","line1":"1 warm up set of 10-12 reps","line2":"2 sets of 10-12 reps","videoID":22,"heading":""},{"pKey":21,"title":"Straight-Arm Pulldown","line1":"7 sets of 10-15 reps","line2":"","videoID":23,"heading":""},{"pKey":22,"title":"Concentration Curls","line1":"2 warm up sets of 12-15 reps, per arm","line2":"3 sets of 12-15 reps, per arm","videoID":24,"heading":""},{"pKey":23,"title":"Dumbbell Alternate Bicep Curl","line1":"3 sets of 12-15 reps, per arm","line2":"","videoID":25,"heading":""},{"pKey":24,"title":"Cable Curls","line1":"3 sets of 15-20 reps, per arm","line2":"","videoID":26,"heading":""},{"pKey":25,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""}],"Day 5: Shoulders, Calves & Abs":[{"pKey":26,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":27,"title":"Seated Barbell Military Press","line1":"2 warm up sets of 6-8 reps","line2":"3 sets of 6-8 reps","videoID":72,"heading":""},{"pKey":28,"title":"Side Lateral Raise","line1":"1 warm up sets of 12-15 reps","line2":"3 sets of 12-15 reps","videoID":73,"heading":""},{"pKey":29,"title":"Upright Barbell Row","line1":"3 sets of 7 reps","line2":"","videoID":74,"heading":""},{"pKey":30,"title":"Lying Rear Delt Raise","line1":"7 sets of 12-15 reps","line2":"","videoID":75,"heading":""},{"pKey":31,"title":"Weighted Sit-up","line1":"3 sets of 15-20 reps","line2":"","videoID":76,"heading":"Superset"},{"pKey":32,"title":"Seated Calf Raise","line1":"3 sets of 20 reps","line2":"","videoID":19,"heading":""},{"pKey":33,"title":"Standing Calf Raises","line1":"3 sets of 18-20 reps 1 foot at a time","line2":"","videoID":8,"heading":"Resume Normal Sets"},{"pKey":34,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""}],"Day 6: Rest":[{"pKey":35,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 7: Legs":[{"pKey":36,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":37,"title":"Leg Extensions","line1":"2 sets of 30 reps","line2":"","videoID":4,"heading":"Superset"},{"pKey":38,"title":"Hamstring Curls","line1":"2 sets of 20 reps","line2":"","videoID":3,"heading":""},{"pKey":39,"title":"Walking Lunges","line1":"3 sets of 40 steps","line2":"","videoID":9,"heading":"Superset"},{"pKey":40,"title":"Standing Leg Curl","line1":"3 sets of 15-20 reps","line2":"","videoID":10,"heading":""},{"pKey":41,"title":"Leg Press","line1":"3 sets of 50 reps","line2":"","videoID":1,"heading":"Resume Normal Sets"},{"pKey":42,"title":"Leg Extensions","line1":"1 set of 30 reps","line2":"","videoID":4,"heading":"Superset"},{"pKey":43,"title":"Hamstring Curls","line1":"1 set of 30 reps","line2":"","videoID":32,"heading":""},{"pKey":44,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"}]},"2":{"Day 8: Chest & Triceps":[{"pKey":45,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":46,"title":"Flat Dumbbell Press","line1":"2 warm-up sets of 8-10 reps","line2":"2 sets to failure in 6-8 reps","videoID":46,"heading":""},{"pKey":47,"title":"Flat Bench Flyes","line1":"1 warm-up set of 8-10 reps","line2":"3 sets to failure in 8-10 reps","videoID":28,"heading":""},{"pKey":48,"title":"Incline Cable Flyes","line1":"1 warm-up set of 8-10 reps, 2 sets to","line2":"failure in 16-18 reps, 1 drop set to failure","videoID":61,"heading":""},{"pKey":49,"title":"Cable Crossover","line1":"1 warm-up set of 8-10 reps, 2 sets to","line2":"failure in 16-18 reps, 1 drop set to failure","videoID":57,"heading":""},{"pKey":50,"title":"Reverse Cable Pushdowns","line1":"1 warm-up set of 8-10 reps, 2 sets to","line2":"failure in 16-18 reps, 1 drop set to failure","videoID":65,"heading":""},{"pKey":51,"title":"Lying Dumbbell Tricep Extension","line1":"3 sets of 7 reps","line2":"","videoID":60,"heading":"Giant Set"},{"pKey":52,"title":"Skull Crushers","line1":"3 sets of 7 reps","line2":"","videoID":52,"heading":""},{"pKey":53,"title":"Rockers","line1":"3 sets of 7 reps","line2":"","videoID":53,"heading":""},{"pKey":54,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":514,"title":"Tricep Cable Pushdowns","line1":"1 warm-up set of 8-10 reps, 2 sets to ","line2":"failure in 16-18 reps, 1 drop set to failure","videoID":51,"heading":""}],"Day 9: Rest":[{"pKey":55,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 10: Shoulders":[{"pKey":56,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":57,"title":"Smith Machine Shoulder Press","line1":"2 warm up sets of 8-10 reps","line2":"3 sets to failure in 6-8 reps","videoID":92,"heading":""},{"pKey":58,"title":"Machine Shoulder Press (One-Arm)","line1":"1 warm up set of 8-10 reps, 2 sets to ","line2":"failure in 8-10 reps, 1 drop set to failure","videoID":88,"heading":""},{"pKey":59,"title":"Side Lateral Raise","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 12-16 reps","videoID":73,"heading":"Superset"},{"pKey":60,"title":"Side Lateral Raise (Behind Back)","line1":"3 sets to failure in 12-15 reps","line2":"","videoID":84,"heading":""},{"pKey":61,"title":"Dumbbell Shrug","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 12-20 reps","videoID":85,"heading":"Resume Normal Sets"},{"pKey":62,"title":"Reverse Machine Flyes","line1":"1 warm up set of 8-10 reps","line2":"7 sets of 12-15 reps","videoID":86,"heading":""},{"pKey":63,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""}],"Day 11: Calves & Abs":[{"pKey":64,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":65,"title":"Standing Calf Raises","line1":"2 warm up sets of 8-10 reps","line2":"4 sets to failure in 12-15 reps","videoID":8,"heading":""},{"pKey":66,"title":"Donkey Calf Raises","line1":"4 sets to failure in 18-20 reps","line2":"","videoID":87,"heading":""},{"pKey":67,"title":"Hanging Leg Raise","line1":"3 sets to failure in 20 reps","line2":"","videoID":81,"heading":""},{"pKey":68,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""}],"Day 12: Back & Biceps":[{"pKey":69,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":70,"title":"Reverse-Grip Pulldowns","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 8-10 reps","videoID":20,"heading":""},{"pKey":71,"title":"Wide-Grip Lat Pulldown","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 8-12 reps","videoID":34,"heading":""},{"pKey":72,"title":"One-Arm Dumbbell Row","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 8-12 reps","videoID":35,"heading":""},{"pKey":73,"title":"Romanian Deadlift","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 16 reps","videoID":36,"heading":""},{"pKey":74,"title":"Hammer Curls","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 18-20 reps","videoID":32,"heading":""},{"pKey":75,"title":"Machine Preacher Curls","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 14-16 reps","videoID":37,"heading":""},{"pKey":76,"title":"EZ-Bar Curl","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 8-10 reps","videoID":38,"heading":""},{"pKey":77,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""}],"Day 13: Rest":[{"pKey":78,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 14: Legs":[{"pKey":79,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":80,"title":"Leg Extensions","line1":"3 sets to failure in 18-20 full and partial","line2":"reps","videoID":4,"heading":"Superset"},{"pKey":81,"title":"Seated Leg Curl","line1":"3 sets to failure in 12-15 reps","line2":"","videoID":3,"heading":""},{"pKey":82,"title":"Hack Squat","line1":"4 sets to failure in 50 reps","line2":"","videoID":5,"heading":"Superset"},{"pKey":83,"title":"Standing Leg Curl","line1":"4 sets to failure in 18-20 reps","line2":"","videoID":10,"heading":""},{"pKey":84,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"}]},"3":{"Day 15: Chest & Triceps":[{"pKey":85,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":86,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":87,"title":"Dumbbell Bench Press","line1":"2 warm up sets of 8-10 reps","line2":"2 sets to failure in 6-8 reps","videoID":46,"heading":""},{"pKey":88,"title":"Straight-Arm Dumbbell Pullover","line1":"1 warm up set of 8-10 reps","line2":"2 sets to failure in 10-12 reps","videoID":47,"heading":""},{"pKey":89,"title":"Incline Dumbbell Flyes","line1":"2 sets to failure in 10-12 reps","line2":"1 drop set to failure","videoID":71,"heading":""},{"pKey":90,"title":"Cable Rope Overhead Triceps Extension","line1":"1 set to failure in 12-15 reps","line2":"2 drop sets to failure","videoID":54,"heading":""},{"pKey":91,"title":"Dips","line1":"3 sets to failure in 12-15 reps","line2":"","videoID":70,"heading":""},{"pKey":92,"title":"Lying Dumbbell Tricep Extension","line1":"3 sets to failure in 10-12 reps","line2":"","videoID":60,"heading":"Superset"},{"pKey":93,"title":"Pushups (Close and Wide Hand)","line1":"3 sets to failure","line2":"","videoID":62,"heading":""},{"pKey":94,"title":"Bench Dips","line1":"3 sets to failure in 12-15 reps","line2":"","videoID":64,"heading":"Resume Normal Sets"},{"pKey":95,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":96,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 16: Back & Biceps":[{"pKey":97,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":98,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":99,"title":"Reverse-Grip Pulldowns","line1":"1 warm up set of 10-12 reps","line2":"3 sets to failure in 10-12 reps","videoID":20,"heading":""},{"pKey":100,"title":"Wide-Grip Lat Pulldown","line1":"3 sets to failure in 12-15 reps","line2":"","videoID":34,"heading":""},{"pKey":101,"title":"Bent Over Two-Dumbbell Row","line1":"3 sets to failure in 15-17 reps","line2":"","videoID":39,"heading":""},{"pKey":102,"title":"V-Bar Pullup (with legs elevated)","line1":"3 sets to failure in 10-12 reps","line2":"","videoID":40,"heading":""},{"pKey":103,"title":"Dumbbell Alternate Bicep Curl","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 12-14 reps","videoID":25,"heading":""},{"pKey":104,"title":"One Arm Dumbbell Preacher Curl","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 12-14 reps","videoID":41,"heading":""},{"pKey":105,"title":"Spider Curl","line1":"3 sets to failure in 15-20 reps","line2":"","videoID":42,"heading":""},{"pKey":106,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":107,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 17: Rest":[{"pKey":108,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 18: Rest":[{"pKey":109,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 19: Shoulders, Calves & Abs":[{"pKey":110,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":111,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":112,"title":"Side Lateral Raise","line1":"3 sets to failure in 12-15 reps","line2":"","videoID":73,"heading":"Superset"},{"pKey":113,"title":"Front Dumbbell Raise","line1":"2-3 sets to failure in 12-15 reps","line2":"","videoID":77,"heading":""},{"pKey":114,"title":"Machine Shoulder (Military) Press","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 12-15 reps","videoID":88,"heading":"Resume Normal Sets"},{"pKey":115,"title":"Seated Bent-Over Rear Delt Raise","line1":"7 sets to failure in 12-15 reps","line2":"","videoID":89,"heading":""},{"pKey":116,"title":"Standing Calf Raises","line1":"1 warm up set of 8-10 reps","line2":"5 sets to failure in 20 reps","videoID":8,"heading":""},{"pKey":117,"title":"Sit-Up","line1":"3 sets to failure","line2":"","videoID":90,"heading":""},{"pKey":118,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":119,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 20: Legs":[{"pKey":120,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":121,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":122,"title":"Leg Extensions","line1":"2 warm up sets of 8-10 reps","line2":"1 drop set of 100 total reps","videoID":4,"heading":""},{"pKey":123,"title":"Leg Press","line1":"2 warm up sets of 8-10 reps\n","line2":"3 rest-pause sets to failure in 30 reps","videoID":1,"heading":""},{"pKey":124,"title":"Standing Leg Curl","line1":"1 warm up set of 8-10 reps","line2":"3 sets to failure in 20 reps","videoID":10,"heading":""},{"pKey":125,"title":"Hack Squat","line1":"2 warm up sets of 8-10 reps","line2":"3 rest-pause sets to failure in 30 reps","videoID":5,"heading":""},{"pKey":126,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":127,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 21: Rest":[{"pKey":128,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}]},"4":{"Day 22: Rest":[{"pKey":129,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 23: Back & Biceps":[{"pKey":130,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":131,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":132,"title":"Reverse-Grip Hammer Pulldowns","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":43,"heading":""},{"pKey":133,"title":"Bent Over Barbell Row","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":21,"heading":""},{"pKey":134,"title":"One-Arm Dumbbell Row","line1":"1 warm up set of 8-10 reps ","line2":"2 sets of 10-12 reps","videoID":35,"heading":""},{"pKey":135,"title":"Reverse-Grip Pulldowns","line1":"1 warm up set of 8-10 reps ","line2":"3 sets of 10-12 reps","videoID":20,"heading":""},{"pKey":136,"title":"Machine Preacher Curls","line1":"1 warm up set of 8-10 reps ","line2":"4 triple drop sets of 10-12 reps","videoID":37,"heading":""},{"pKey":137,"title":"EZ-Bar Curl","line1":"4 triple drop sets of 10-12 reps","line2":"","videoID":38,"heading":""},{"pKey":138,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":139,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 24: Shoulders":[{"pKey":140,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":141,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":142,"title":"Side Lateral Raise","line1":"2 warm up sets of 8-10 reps, 3 sets of","line2":"10-12 reps + plus partial reps to failure","videoID":73,"heading":""},{"pKey":143,"title":"Dumbbell Shoulder Press","line1":"1 warm up set of 8-10 reps ","line2":"3 drop sets of 10-12 reps","videoID":91,"heading":""},{"pKey":144,"title":"Dumbbell Lying Rear Lateral Raise","line1":"1 set of 12 reps + 20 partial reps","line2":"","videoID":78,"heading":""},{"pKey":145,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":146,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 25: Chest":[{"pKey":147,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":148,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":149,"title":"Flat Bench Flyes","line1":"2 warm up sets of 8-10 reps","line2":"3 triple drop sets of 10-12 reps","videoID":28,"heading":""},{"pKey":150,"title":"Machine Bench Press","line1":"3 triple drop sets of 10-12 reps","line2":"","videoID":66,"heading":""},{"pKey":151,"title":"Incline Dumbbell Flyes","line1":"3 triple drop sets of 10-12 reps","line2":"","videoID":29,"heading":""},{"pKey":152,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":153,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 26: Rest":[{"pKey":154,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 27: Rest":[{"pKey":155,"title":"Rest","line1":"Cardio - 20 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 28: Legs":[{"pKey":156,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":157,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":158,"title":"Leg Press","line1":"3 sets, 85 reps: 20 at bottom, up 1 inch","line2":"every 20 reps, last 25 at top of plate","videoID":1,"heading":"Superset"},{"pKey":159,"title":"Barbell Squat","line1":"3 sets of 20 reps","line2":"","videoID":6,"heading":""},{"pKey":160,"title":"Leg Extensions","line1":"3 triple drop sets of 12-15 reps","line2":"1 burnout set with partial reps","videoID":4,"heading":"Resume Normal Sets"},{"pKey":161,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":162,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}]},"5":{"Day 29: Triceps, Calves & Abs":[{"pKey":163,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":164,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":165,"title":"Triceps Pushdown - V-Bar Attachment","line1":"1 warm up set of 8-10 reps ","line2":"3 triple drop sets of 15 reps","videoID":67,"heading":""},{"pKey":166,"title":"Close-Grip Barbell Bench Press","line1":"2 warm up sets of 8-10 reps ","line2":"3 triple drop sets of 12 reps","videoID":56,"heading":""},{"pKey":167,"title":"Cable Rope Overhead Triceps Extension\n","line1":"2 warm up sets of 8-10 reps","line2":"3 triple drop sets of 10 reps","videoID":54,"heading":""},{"pKey":168,"title":"Standing Calf Raises","line1":"7 sets of 20 reps","line2":"","videoID":8,"heading":""},{"pKey":169,"title":"Weighted Sit-Ups","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":76,"heading":""},{"pKey":170,"title":"Hanging Leg Raise\n","line1":"2 sets of 15-17 reps","line2":"","videoID":81,"heading":""},{"pKey":171,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":172,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 30: Rest":[{"pKey":173,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 31: Rest":[{"pKey":174,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"","videoID":0,"heading":""}],"Day 32: Shoulders":[{"pKey":175,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":176,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":177,"title":"Smith Machine Shoulder Press","line1":"2 warm up sets of 10-12 reps","line2":"3 sets of 10-12 reps","videoID":92,"heading":""},{"pKey":178,"title":"Smith Machine (behind the neck)","line1":"1 set of 8-10 reps","line2":"1 drop set of 8-10 reps","videoID":82,"heading":""},{"pKey":179,"title":"Side Lateral Raise","line1":"4 drop sets of 10 reps","line2":"","videoID":73,"heading":""},{"pKey":180,"title":"Smith Machine Shrug","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 18-20 reps","videoID":94,"heading":""},{"pKey":181,"title":"Reverse Machine Flyes\n","line1":"7 sets of 15 reps + partial reps until failure","line2":"","videoID":86,"heading":""},{"pKey":182,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":183,"title":"Seated Barbell Twist\n","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 33: Chest & Triceps":[{"pKey":184,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":185,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":186,"title":"Dumbbell Bench Press","line1":"2 warm up sets","line2":"2 sets of 6-8 reps","videoID":46,"heading":""},{"pKey":187,"title":"Decline Bench Press","line1":"2 warm up sets, 2 sets of 10 reps","line2":"1 triple drop set of 10 reps","videoID":58,"heading":""},{"pKey":188,"title":"Flat Dumbbell Flyes","line1":"2 warm up sets","line2":"3 drop sets of 8 reps","videoID":28,"heading":""},{"pKey":189,"title":"Triceps Pushdown","line1":"2 warm up sets","line2":"3 drop sets of 10-12 reps","videoID":51,"heading":""},{"pKey":190,"title":"Cable Rope Overhead Triceps Extension","line1":"2 warm up sets","line2":"3 drop sets of 10-12 reps","videoID":54,"heading":""},{"pKey":191,"title":"Smith Machine Close-Grip Bench Press","line1":"2 warm up sets, 2 sets of 12 reps, 1 set","line2":"of 12 reps + partial reps until failure","videoID":68,"heading":""},{"pKey":192,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":193,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 34: Legs":[{"pKey":194,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":195,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":196,"title":"Standing Leg Curl","line1":"2 warm up sets of 8-10 reps","line2":"4 drop sets of 10-12 reps","videoID":10,"heading":""},{"pKey":197,"title":"Stiff-Legged Barbell Deadlift","line1":"2 warm up sets of 8-10 reps","line2":"2 sets of 16-18 reps","videoID":11,"heading":""},{"pKey":198,"title":"Leg Press","line1":"2 warm up sets of 8-10 reps","line2":"2 sets of 20 reps to failure","videoID":1,"heading":""},{"pKey":199,"title":"Leg Extensions","line1":"2 warm up sets of 8-10 reps","line2":"3 triple drop sets of 16-20 reps","videoID":4,"heading":""},{"pKey":200,"title":"Seated Leg Curl","line1":"1 warm up set of 8-10 reps","line2":"3 drop sets of 16 reps","videoID":3,"heading":"Superset"},{"pKey":201,"title":"Standing Calf Raises","line1":"1 warm up set of 8-10 reps","line2":"3 dropsets of 20 reps","videoID":8,"heading":""},{"pKey":202,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":203,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 35: Back, Biceps & Abs":[{"pKey":204,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":205,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":206,"title":"Chin-Up\n\n","line1":"3 sets of 16-20 reps","line2":"","videoID":44,"heading":"Giant Set"},{"pKey":207,"title":"Wide-Grip Lat Pulldown (behind neck)","line1":"3 sets of 6-10 reps","line2":"","videoID":34,"heading":""},{"pKey":208,"title":"Seated Cable Rows","line1":"3 drop sets of 8-10 reps","line2":"","videoID":45,"heading":""},{"pKey":209,"title":"Bent Over Barbell Row","line1":"3 sets of 12 reps","line2":"","videoID":21,"heading":"Superset"},{"pKey":210,"title":"Hyperextensions (back extensions)","line1":"3 drop sets of 12 reps","line2":"","videoID":22,"heading":""},{"pKey":211,"title":"Dumbbell Alternate Bicep Curl","line1":"1 set of 20 reps","line2":"2 sets of 8 reps","videoID":25,"heading":"Superset"},{"pKey":212,"title":"Hammer Curl","line1":"3 drop sets of 8 reps","line2":"","videoID":32,"heading":""},{"pKey":213,"title":"Cable Curl\n","line1":"3 drop sets of 20 reps","line2":"","videoID":26,"heading":"Resume Normal Sets"},{"pKey":214,"title":"Weighted Sit-Ups","line1":"3 sets of 10-15 reps","line2":"","videoID":76,"heading":""},{"pKey":215,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":216,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}]},"6":{"Day 36: Rest":[{"pKey":217,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 37: Rest":[{"pKey":218,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 38: Shoulders & Calves":[{"pKey":219,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":220,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":221,"title":"Side Lateral Raise","line1":"2 warm up sets of 8-10 reps ","line2":"3 triple drop sets of 10-12 reps","videoID":73,"heading":"Superset"},{"pKey":222,"title":"Front Plate Raise","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":95,"heading":""},{"pKey":223,"title":"Military Press","line1":"2 warm up sets of 8-10 reps","line2":"3 triple drop sets of 8-10 reps","videoID":72,"heading":"Superset"},{"pKey":224,"title":"Seated Bent-Over Rear Delt Raise","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":89,"heading":""},{"pKey":225,"title":"Dumbbell Shrug\n","line1":"3 sets of 18-20 reps","line2":"","videoID":85,"heading":"Working Set"},{"pKey":226,"title":"Seated Calf Raise","line1":"2 triple drop sets of 10-12 reps","line2":"","videoID":19,"heading":"Superset"},{"pKey":227,"title":"Standing Calf Raises","line1":"2 sets to failure","line2":"","videoID":8,"heading":""},{"pKey":228,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":229,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 39: Chest, Triceps & Abs":[{"pKey":230,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":231,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":232,"title":"Dumbbell Bench Press","line1":"5 warm up sets of 8-10 reps","line2":"2 sets of 6-8 reps","videoID":46,"heading":""},{"pKey":233,"title":"Decline Barbell Bench Press","line1":"2 warm up sets of 8-10 reps","line2":"1 triple drop set of 6-8 reps","videoID":58,"heading":""},{"pKey":234,"title":"Incline Dumbbell Flyes","line1":"1 set of 8-10 reps","line2":"1 double-dropset of 8-10 reps","videoID":29,"heading":""},{"pKey":235,"title":"Cable Crossover","line1":"2 sets of 10-12 reps","line2":"1 drop set of 10-12 reps","videoID":57,"heading":""},{"pKey":236,"title":"Skull Crusher","line1":"3 sets of 10-12 reps","line2":"","videoID":52,"heading":"Superset"},{"pKey":237,"title":"Rockers","line1":"3 sets of 8-10 reps","line2":"","videoID":53,"heading":""},{"pKey":238,"title":"Lying Dumbbell Tricep Extensions","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":60,"heading":"Resume Normal Sets"},{"pKey":239,"title":"Bench Dips","line1":"3 drop sets of 10-12 reps + ","line2":"partial reps until failure","videoID":64,"heading":""},{"pKey":240,"title":"Weighted Crunch","line1":"3 sets of 12-15 reps","line2":"","videoID":79,"heading":""},{"pKey":241,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":242,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 40: Legs":[{"pKey":243,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":244,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":245,"title":"Leg Press","line1":"3 sets of 22-25 reps","line2":"","videoID":1,"heading":"Superset"},{"pKey":246,"title":"Barbell Squat","line1":"3 sets of 8-10 reps","line2":"","videoID":6,"heading":""},{"pKey":247,"title":"Seated Leg Curl","line1":"3 sets of 18-20 reps","line2":"","videoID":3,"heading":"Superset"},{"pKey":248,"title":"Standing Leg Curl","line1":"3 sets of 8-10 slow reps","line2":"followed by 10 quick reps","videoID":10,"heading":""},{"pKey":249,"title":"Hack Squat","line1":"3 sets of 20-30 reps","line2":"","videoID":5,"heading":"Superset"},{"pKey":250,"title":"Unilateral Leg Extensions","line1":"1 set of 20 reps, 1 set of","line2":"10 reps, 1 set of 5 reps","videoID":12,"heading":""},{"pKey":251,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":252,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 41: Rest":[{"pKey":253,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 42: Back & Biceps":[{"pKey":254,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":255,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":256,"title":"Reverse Grip Hammer Pulldowns","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 8-10 reps","videoID":43,"heading":""},{"pKey":257,"title":"One-Arm Dumbbell Row","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 12-15 reps","videoID":35,"heading":""},{"pKey":258,"title":"Bent Over Barbell Row","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":21,"heading":""},{"pKey":259,"title":"Reverse Grip Pulldowns\n","line1":"3 sets of 12-15 reps","line2":"","videoID":20,"heading":""},{"pKey":260,"title":"Spider Curl","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 8-10 reps","videoID":42,"heading":""},{"pKey":261,"title":"Concentration Curls","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 12-15 reps","videoID":24,"heading":""},{"pKey":262,"title":"Machine Preacher Curls\n","line1":"7 sets of 10-15 reps","line2":"","videoID":37,"heading":""},{"pKey":263,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":264,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}]},"7":{"Day 43: Shoulders, Calves & Abs":[{"pKey":265,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":266,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":267,"title":"Dumbbell Shoulder Press","line1":"2 warm up sets of 8-10 reps","line2":"2 sets of 6-10 reps","videoID":91,"heading":""},{"pKey":268,"title":"Side Lateral Raise","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":73,"heading":""},{"pKey":269,"title":"Front Dumbbell Raise","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":77,"heading":""},{"pKey":270,"title":"Standing Low-Pulley Deltoid Raise","line1":"3 sets of 8-10 reps + 3 negative reps","line2":"","videoID":96,"heading":""},{"pKey":271,"title":"Upright Barbell Row","line1":"7 sets of 12-15 reps","line2":"","videoID":74,"heading":""},{"pKey":272,"title":"Calf Press On The Leg Press Machine","line1":"3 sets of 20 reps","line2":"","videoID":15,"heading":"Superset"},{"pKey":273,"title":"Sit Ups","line1":"3 sets of 20-30 reps","line2":"","videoID":90,"heading":""},{"pKey":274,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":275,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 44: Rest":[{"pKey":276,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 45: Chest & Triceps":[{"pKey":277,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":278,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":279,"title":"Incline Dumbbell Flyes","line1":"2 warm up sets of 8-10 reps","line2":"2 sets of 10-12 reps","videoID":29,"heading":""},{"pKey":280,"title":"Machine Bench Press","line1":"2 warm up sets of 8-10 reps","line2":"2 sets of 12-15 reps","videoID":66,"heading":""},{"pKey":281,"title":"Modified Pushups","line1":"2 sets of 10 reps","line2":"","videoID":69,"heading":""},{"pKey":282,"title":"Dip Machine","line1":"3 sets of 10-12 reps","line2":"","videoID":70,"heading":""},{"pKey":283,"title":"Cable Rope Overhead Triceps Extension","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 12-15 reps","videoID":54,"heading":""},{"pKey":284,"title":"Triceps Pushdown","line1":"1 warm up set of 8-10 reps ","line2":"2 sets of 10-12 reps","videoID":51,"heading":""},{"pKey":285,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":286,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 46: Legs":[{"pKey":287,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":288,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":289,"title":"Leg Extensions","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 20 'One And A Half' reps","videoID":4,"heading":""},{"pKey":290,"title":"Partial Leg Extensions\n","line1":"2 sets of 50 reps (dropping weight","line2":"every 10 reps)","videoID":13,"heading":""},{"pKey":291,"title":"Leg Press","line1":"2 sets of 60 reps (adjust feet","line2":"position every 20 reps)","videoID":1,"heading":""},{"pKey":292,"title":"Dumbbell Lunges","line1":"1 warm up set of 8-10 reps with no weight","line2":"2 sets to failure","videoID":7,"heading":""},{"pKey":293,"title":"Smith Machine Stiff-Legged Deadlift","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 12-15 reps","videoID":14,"heading":""},{"pKey":294,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":295,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 47: Rest":[{"pKey":296,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 48: Rest":[{"pKey":297,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 49: Back & Biceps":[{"pKey":298,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":299,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":300,"title":"Chin-Up","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 15 reps","videoID":44,"heading":"Giant Set"},{"pKey":301,"title":"Wide-Grip Pulldown Behind The Neck","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 15 reps","videoID":34,"heading":""},{"pKey":302,"title":"Bent Over Barbell Row","line1":"1 warm-up set of 8-10 reps","line2":"3 sets of 8-10 reps","videoID":21,"heading":"Resume Normal Set"},{"pKey":303,"title":"Hammer Curls","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 20 reps","videoID":32,"heading":""},{"pKey":304,"title":"Wide Grip Barbell Curls","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":31,"heading":""},{"pKey":305,"title":"Cable Curls","line1":"3 sets of 20 reps","line2":"","videoID":26,"heading":""},{"pKey":306,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":307,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":513,"title":"Seated Cable Rows","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 15 reps","videoID":45,"heading":""}]},"8":{"Day 50: Rest":[{"pKey":308,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 51: Shoulders, Calves & Abs":[{"pKey":309,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":310,"title":"Seated Barbell Rows","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":311,"title":"Side Lateral Raise","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 drop sets of 10 reps","videoID":73,"heading":"Pyramid/Drop Set"},{"pKey":312,"title":"Machine Shoulder Press","line1":"2 warm up sets of 8-10 reps","line2":"1 triple drop set of 6-10 reps","videoID":88,"heading":"Resume Normal Sets"},{"pKey":313,"title":"Barbell Shrug","line1":"1 warm up set of 8-10 reps","line2":"2 sets of 10-12 reps","videoID":98,"heading":""},{"pKey":314,"title":"Seated Calf Raise","line1":"3 sets of 10-12 reps","line2":"","videoID":19,"heading":"Superset"},{"pKey":315,"title":"Calf Press On The Leg Press Machine\n","line1":"3 sets of 10-12 reps","line2":"","videoID":15,"heading":""},{"pKey":316,"title":"Sit-Up (with legs on bench)","line1":"3 sets of 30 reps (10 full reps, 10 bottom","line2":"half-reps, 10 top half-reps)","videoID":99,"heading":"Resume Normal Sets"},{"pKey":317,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":318,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 52: Legs":[{"pKey":319,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":320,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":321,"title":"Seated Leg Curl","line1":"1 set of 20 reps","line2":"","videoID":3,"heading":"Superset"},{"pKey":322,"title":"Leg Extensions","line1":"1 set of 40 reps","line2":"","videoID":4,"heading":""},{"pKey":323,"title":"Barbell Squat","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 40,30,10 reps","videoID":6,"heading":"Pyramid Set"},{"pKey":324,"title":"Leg Extensions","line1":"2 set of 20 reps","line2":"","videoID":4,"heading":"Superset"},{"pKey":325,"title":"Seated Leg Curl","line1":"2 set of 20 reps","line2":"","videoID":3,"heading":""},{"pKey":326,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":327,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 53: Back & Chest":[{"pKey":328,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":329,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":330,"title":"Wide Grip Lat Pulldown","line1":"3 sets of 16-20 reps","line2":"","videoID":34,"heading":"Superset"},{"pKey":331,"title":"Dumbbell Bench Press","line1":"2 sets of 8-10 reps","line2":"","videoID":46,"heading":""},{"pKey":332,"title":"Seated Cable Rows","line1":"3 sets of 12-16 reps","line2":"","videoID":45,"heading":"Superset"},{"pKey":333,"title":"Incline Dumbbell Flyes","line1":"2 sets 8-12 reps","line2":"","videoID":29,"heading":""},{"pKey":334,"title":"Reverse Grip Cable Pulldowns","line1":"2 sets of 8-10 reps","line2":"","videoID":20,"heading":"Superset"},{"pKey":335,"title":"Incline Cable Flyes","line1":"2 sets of 8-10 reps","line2":"","videoID":61,"heading":""},{"pKey":336,"title":"Romanian Deadlift","line1":"1 warm up set of 8-10 reps","line2":"1 set of 30 reps, 1 drop set of 30 reps","videoID":36,"heading":"Resume Normal Sets"},{"pKey":337,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":338,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 54: Biceps & Triceps":[{"pKey":339,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":340,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":341,"title":"Dumbbell Alternate Bicep Curl","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":25,"heading":"DTP Superset"},{"pKey":342,"title":"Skullcrushers, Rockers & Headsmackers","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":52,"heading":""},{"pKey":343,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":344,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 55: Rest":[{"pKey":345,"title":"Cardio - 25 minutes, 2x a day","line1":"Twists - 150 reps","line2":"","videoID":0,"heading":""}],"Day 56: Rest":[{"pKey":346,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}]},"9":{"Day 57: Rest":[{"pKey":347,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 58: Shoulders, Calves & Abs":[{"pKey":348,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":349,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":350,"title":"Standing Calf Raises\n","line1":"10 sets of 15-30 reps","line2":"","videoID":8,"heading":""},{"pKey":351,"title":"Decline Crunch","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 15 reps","videoID":101,"heading":""},{"pKey":352,"title":"Smith Machine Shoulder Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"","videoID":92,"heading":"DTP Set"},{"pKey":353,"title":"Smith Machine (behind the neck)","line1":"Behind the neck","line2":"5 sets of 50,40,30,20,10 reps","videoID":92,"heading":""},{"pKey":354,"title":"Upright Barbell Row (wide grip)","line1":"3 sets of 10,7,5 reps ","line2":"1 triple drop set of 6-8 reps","videoID":74,"heading":"Giant Set"},{"pKey":355,"title":"Upright Barbell Row (medium grip)","line1":"3 sets of 10,7,5 reps ","line2":"1 triple drop set of 6-8 reps","videoID":74,"heading":""},{"pKey":356,"title":"Upright Barbell Row (narrow grip)","line1":"3 sets of 10,7,5 reps ","line2":"1 triple drop set of 6-8 reps","videoID":74,"heading":""},{"pKey":357,"title":"Cardio","line1":"25 minutes","line2":"","videoID":74,"heading":"Resume Normal Sets"},{"pKey":358,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 59: Legs":[{"pKey":359,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":360,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":361,"title":"Leg Press","line1":"2 warm up sets of 8-10 reps","line2":"1 triple drop set of 20,10,10 reps","videoID":1,"heading":""},{"pKey":362,"title":"Hack Squat","line1":"2 sets of 30 reps","line2":"","videoID":5,"heading":"Superset"},{"pKey":363,"title":"Barbell Squat","line1":"2 sets of 10 reps","line2":"","videoID":6,"heading":""},{"pKey":364,"title":"Standing Leg Curl","line1":"2 sets of 16-20 reps","line2":"1 triple drop set of 16-20 reps","videoID":10,"heading":"Superset"},{"pKey":365,"title":"Stiff-Legged Dumbbell Deadlift","line1":"3 sets of 10-12 reps","line2":"","videoID":11,"heading":""},{"pKey":366,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":367,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 60: Chest & Back":[{"pKey":368,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":369,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":370,"title":"Straight Arm Dumbbell Pullover","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":47,"heading":"Superset"},{"pKey":371,"title":"Dumbbell Bench Press","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 6-8 reps","videoID":46,"heading":""},{"pKey":372,"title":"Incline Dumbbell Flyes With A Twist","line1":"1 warm up set of 8-10 reps","line2":"2 sets of 10-12 reps","videoID":71,"heading":"Superset"},{"pKey":373,"title":"Bent Over Barbell Row","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":21,"heading":""},{"pKey":374,"title":"Cable Crossover","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":57,"heading":"Superset"},{"pKey":375,"title":"One-Arm Dumbbell Row","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":35,"heading":""},{"pKey":376,"title":"Straight Arm Pulldown","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":23,"heading":"Superset"},{"pKey":377,"title":"Dumbbell Bench Press","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 6-8 reps","videoID":46,"heading":""},{"pKey":378,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":379,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 61: Rest":[{"pKey":380,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 62: Biceps & Triceps":[{"pKey":381,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":382,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":383,"title":"Machine Preacher Curls","line1":"2 sets of 10-12 reps","line2":"1 triple drop set of 10-12 reps","videoID":37,"heading":"Superset"},{"pKey":384,"title":"Tricep Dips","line1":"2 sets of 10-12 reps","line2":"1 triple drop set of 10-12 reps","videoID":59,"heading":""},{"pKey":385,"title":"Triceps Pushdown - V-Bar","line1":"1 set of 12 reps, 1 drop set of 12 reps","line2":"1 set of 12 reps","videoID":67,"heading":"Superset"},{"pKey":386,"title":"Cable Curl","line1":"1 set of 12 reps, 1 drop set of 12 reps","line2":"1 set of 12 reps","videoID":26,"heading":""},{"pKey":387,"title":"Close-Grip Barbell Bench Press","line1":"3 sets of 10-12 reps","line2":"","videoID":56,"heading":"Superset"},{"pKey":388,"title":"Hammer Curl","line1":"3 sets of 10-12 reps","line2":"","videoID":32,"heading":""},{"pKey":389,"title":"EZ Bar Curl","line1":"3 sets of 12 reps","line2":"","videoID":38,"heading":"Superset"},{"pKey":390,"title":"Triceps Pushdown","line1":"3 sets of 12 reps","line2":"","videoID":51,"heading":""},{"pKey":391,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":392,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 63: Shoulders, Calves & Abs":[{"pKey":393,"title":"Cardio","line1":"20 minutes","line2":"","videoID":0,"heading":""},{"pKey":394,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":395,"title":"Dumbbell Shoulder Press","line1":"2 warm up sets of 8-10 reps","line2":"3 sets of 10-12 reps","videoID":91,"heading":""},{"pKey":396,"title":"Side Lateral Raise","line1":"2 warm up sets of 8-10 reps","line2":"4 sets of 10-12 reps","videoID":73,"heading":"Superset"},{"pKey":397,"title":"Seated Cable Rows","line1":"2 warm up sets of 8-10 reps","line2":"4 sets of 10-12 reps","videoID":45,"heading":""},{"pKey":398,"title":"Dumbbell Shrug","line1":"1 warm up set of 8-10 reps","line2":"4 sets of 20 reps","videoID":85,"heading":"Working Set"},{"pKey":399,"title":"Seated Calf Raise","line1":"1 warm up set of 8-10 reps ","line2":"3 sets of 20 reps","videoID":19,"heading":"Superset"},{"pKey":400,"title":"Weighted Sit-Ups","line1":"3 sets of 15-17 reps","line2":"","videoID":76,"heading":""},{"pKey":401,"title":"Calf Press On The Leg Press Machine\n","line1":"3 sets of 10-12 reps","line2":"","videoID":15,"heading":"Superset"},{"pKey":402,"title":"Incline Lying Leg Raise","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 12-15 reps","videoID":16,"heading":""},{"pKey":403,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":404,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}]},"10":{"Day 64: Legs":[{"pKey":405,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":406,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":407,"title":"Leg Extensions","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":4,"heading":"DTP Superset"},{"pKey":408,"title":"Seated Leg Curl","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":3,"heading":""},{"pKey":409,"title":"Dumbbell Lunges","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10 reps","videoID":7,"heading":"Resume Normal Sets"},{"pKey":410,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":411,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 65: Rest":[{"pKey":412,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 66: Chest & Back":[{"pKey":413,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":414,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":415,"title":"Dumbbell Bench Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":46,"heading":"DTP Superset"},{"pKey":416,"title":"Bent Over Two-Dumbbell Row","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":39,"heading":""},{"pKey":417,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":418,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 67: Rest":[{"pKey":419,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 68: Legs & Shoulders":[{"pKey":420,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":421,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":422,"title":"Box Squat","line1":"1 warm up set of 8-10 reps ","line2":"3 sets of 6-8 reps","videoID":17,"heading":""},{"pKey":423,"title":"Rack Squat","line1":"3 sets of 6 reps","line2":"","videoID":18,"heading":""},{"pKey":424,"title":"Dumbbell One-Arm Shoulder Press","line1":"1 warm up set of 8-10 reps","line2":"3 sets of 10 reps","videoID":100,"heading":""},{"pKey":425,"title":"Side Lateral Raise","line1":"2 sets of 15-20 reps","line2":"","videoID":73,"heading":"Giant Set"},{"pKey":426,"title":"Side Lateral Raise Behind The Back","line1":"2 sets of 15-20 reps","line2":"","videoID":84,"heading":""},{"pKey":427,"title":"Seated Bent Over Dumbbell Raise","line1":"2 sets of 15-20 reps","line2":"","videoID":89,"heading":""},{"pKey":428,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":429,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 69: Abs & Calves":[{"pKey":430,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":431,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":432,"title":"Standing Calf Raises","line1":"4 sets of 20 reps","line2":"","videoID":19,"heading":"Circuit"},{"pKey":433,"title":"45° Calf Press on Leg Press Machine","line1":"4 sets of 20 reps","line2":"","videoID":1,"heading":""},{"pKey":434,"title":"Hanging Leg Raise","line1":"4 sets of 20 reps","line2":"","videoID":81,"heading":""},{"pKey":435,"title":"Decline Crunch","line1":"4 sets of 20 reps","line2":"","videoID":101,"heading":""},{"pKey":436,"title":"Standing Barbell Twist","line1":"1 set of 1 minute","line2":"","videoID":55,"heading":""},{"pKey":437,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":438,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 70: Back, Biceps & Triceps":[{"pKey":439,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":440,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":441,"title":"Bent-Over Barbell Row","line1":"3 sets of 6-10 reps","line2":"","videoID":21,"heading":""},{"pKey":442,"title":"Romanian Deadlift","line1":"3 sets of 4-6 reps","line2":"","videoID":36,"heading":"Superset"},{"pKey":443,"title":"Straight-Arm Dumbbell Pullover","line1":"3 sets of 10-12 reps","line2":"","videoID":47,"heading":""},{"pKey":444,"title":"One-Arm Dumbbell Row","line1":"3 sets of 10-12 reps","line2":"","videoID":35,"heading":"Working Set"},{"pKey":445,"title":"Cable Curl","line1":"3 sets of 8-12 reps","line2":"","videoID":26,"heading":"Giant Set"},{"pKey":446,"title":"Hammer Curls","line1":"3 sets of 8-12 reps","line2":"","videoID":32,"heading":""},{"pKey":447,"title":"Chin-Up","line1":"3 sets of 8-12 reps","line2":"","videoID":44,"heading":""},{"pKey":448,"title":"Triceps Pushdown","line1":"3 sets of 20 reps","line2":"","videoID":51,"heading":"Giant Set"},{"pKey":449,"title":"Cable Rope Overhead Triceps Extension","line1":"3 sets of 12 reps","line2":"","videoID":54,"heading":""},{"pKey":450,"title":"Tricep Dips","line1":"3 sets of 10 reps","line2":"","videoID":59,"heading":""},{"pKey":451,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":452,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}]},"11":{"Day 71: Rest":[{"pKey":453,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 72: Rest":[{"pKey":454,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 73: Legs":[{"pKey":455,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":456,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":457,"title":"Leg Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":1,"heading":"DTP"},{"pKey":458,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":459,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 74: Chest & Back":[{"pKey":460,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":461,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":462,"title":"Reverse Grip Cable Pulldowns","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":20,"heading":"DTP Superset"},{"pKey":463,"title":"Dumbbell Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":46,"heading":""},{"pKey":464,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":465,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 75: Shoulders, Calves & Abs":[{"pKey":466,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":467,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":468,"title":"Seated Barbell Press Behind Neck","line1":"5 sets of 50,40,30,20,10 reps","line2":"","videoID":102,"heading":"DTP Set"},{"pKey":469,"title":"Seated Barbell Military Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"","videoID":102,"heading":""},{"pKey":470,"title":"Upright Barbell Row","line1":"3 sets of 15-20 reps","line2":"","videoID":74,"heading":"Giant Set"},{"pKey":471,"title":"Seated Calf Raise","line1":"3 sets of 15-20 reps","line2":"","videoID":19,"heading":""},{"pKey":472,"title":"Weighted Sit-Up","line1":"3 sets of 15-20 reps","line2":"","videoID":76,"heading":""},{"pKey":473,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":474,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 76: Rest":[{"pKey":475,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 77: Rest":[{"pKey":476,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}]},"12":{"Day 78: Legs":[{"pKey":477,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":478,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":479,"title":"Leg Press","line1":"2 warm up sets of 8-10 reps","line2":"5 sets of 50,40,30,20,10 reps","videoID":1,"heading":"1/2 DTP Set"},{"pKey":480,"title":"Seated Leg Curl","line1":"5 sets of 15-20 reps","line2":"","videoID":3,"heading":"Superset"},{"pKey":481,"title":"Leg Extensions","line1":"5 sets of 15-20 reps","line2":"","videoID":4,"heading":""},{"pKey":482,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":483,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 79: Chest & Back":[{"pKey":484,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":485,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":486,"title":"Dumbbell Bench Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":46,"heading":"DTP Superset"},{"pKey":487,"title":"Bent Over Two-Dumbbell Row","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":39,"heading":""},{"pKey":488,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":489,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 80: Shoulders, Calves & Abs":[{"pKey":490,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":491,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":492,"title":"Dumbbell Shoulder Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"","videoID":91,"heading":"1/2 DTP Set"},{"pKey":493,"title":"Dumbbell Shoulder Press","line1":"5 sets of 50,40,30,20,10 reps","line2":"","videoID":91,"heading":"1/2 DTP Superset"},{"pKey":494,"title":"Dumbbell Shrug","line1":"5 sets of 20-25 reps","line2":"","videoID":85,"heading":""},{"pKey":495,"title":"Decline Crunch","line1":"3 sets of 15-20 reps","line2":"","videoID":101,"heading":"Superset"},{"pKey":496,"title":"Seated Calf Raise","line1":"3 sets of 15-20 reps","line2":"","videoID":19,"heading":""},{"pKey":497,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":498,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 81: Rest":[{"pKey":499,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 82: Rest":[{"pKey":500,"title":"Rest","line1":"Cardio - 25 minutes, 2x a day","line2":"Twists - 150 reps","videoID":0,"heading":""}],"Day 83: Biceps & Triceps":[{"pKey":501,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":502,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":503,"title":"Triceps Pushdown - V-Bar Attachment","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":67,"heading":"DTP Superset"},{"pKey":504,"title":"Standing Biceps Cable Curl","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":26,"heading":""},{"pKey":505,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":506,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}],"Day 84: Legs":[{"pKey":507,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":""},{"pKey":508,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""},{"pKey":509,"title":"Seated Leg Curl","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":3,"heading":"DTP Superset"},{"pKey":510,"title":"Leg Extensions","line1":"5 sets of 50,40,30,20,10 reps","line2":"5 sets of 10,20,30,40,50 reps","videoID":4,"heading":""},{"pKey":511,"title":"Cardio","line1":"25 minutes","line2":"","videoID":0,"heading":"Resume Normal Sets"},{"pKey":512,"title":"Seated Barbell Twist","line1":"150 reps, per side","line2":"","videoID":55,"heading":""}]}},"dayOrder":{"1":["Day 1: Legs","Day 2: Chest & Triceps","Day 3: Rest","Day 4: Back & Biceps","Day 5: Shoulders, Calves & Abs","Day 6: Rest","Day 7: Legs"],"2":["Day 8: Chest & Triceps","Day 9: Rest","Day 10: Shoulders","Day 11: Calves & Abs","Day 12: Back & Biceps","Day 13: Rest","Day 14: Legs"],"3":["Day 15: Chest & Triceps","Day 16: Back & Biceps","Day 17: Rest","Day 18: Rest","Day 19: Shoulders, Calves & Abs","Day 20: Legs","Day 21: Rest"],"4":["Day 22: Rest","Day 23: Back & Biceps","Day 24: Shoulders","Day 25: Chest","Day 26: Rest","Day 27: Rest","Day 28: Legs"],"5":["Day 29: Triceps, Calves & Abs","Day 30: Rest","Day 31: Rest","Day 32: Shoulders","Day 33: Chest & Triceps","Day 34: Legs","Day 35: Back, Biceps & Abs"],"6":["Day 36: Rest","Day 37: Rest","Day 38: Shoulders & Calves","Day 39: Chest, Triceps & Abs","Day 40: Legs","Day 41: Rest","Day 42: Back & Biceps"],"7":["Day 43: Shoulders, Calves & Abs","Day 44: Rest","Day 45: Chest & Triceps","Day 46: Legs","Day 47: Rest","Day 48: Rest","Day 49: Back & Biceps"],"8":["Day 50: Rest","Day 51: Shoulders, Calves & Abs","Day 52: Legs","Day 53: Back & Chest","Day 54: Biceps & Triceps","Day 55: Rest","Day 56: Rest"],"9":["Day 57: Rest","Day 58: Shoulders, Calves & Abs","Day 59: Legs","Day 60: Chest & Back","Day 61: Rest","Day 62: Biceps & Triceps","Day 63: Shoulders, Calves & Abs"],"10":["Day 64: Legs","Day 65: Rest","Day 66: Chest & Back","Day 67: Rest","Day 68: Legs & Shoulders","Day 69: Abs & Calves","Day 70: Back, Biceps & Triceps"],"11":["Day 71: Rest","Day 72: Rest","Day 73: Legs","Day 74: Chest & Back","Day 75: Shoulders, Calves & Abs","Day 76: Rest","Day 77: Rest"],"12":["Day 78: Legs","Day 79: Chest & Back","Day 80: Shoulders, Calves & Abs","Day 81: Rest","Day 82: Rest","Day 83: Biceps & Triceps","Day 84: Legs"]},"nutrition":[{"day":1,"supplementID":1},{"day":2,"supplementID":1},{"day":3,"supplementID":4},{"day":4,"supplementID":1},{"day":5,"supplementID":1},{"day":6,"supplementID":4},{"day":7,"supplementID":1},{"day":8,"supplementID":1},{"day":9,"supplementID":4},{"day":10,"supplementID":1},{"day":11,"supplementID":1},{"day":12,"supplementID":1},{"day":13,"supplementID":4},{"day":14,"supplementID":1},{"day":15,"supplementID":1},{"day":16,"supplementID":1},{"day":17,"supplementID":4},{"day":18,"supplementID":4},{"day":19,"supplementID":1},{"day":20,"supplementID":1},{"day":21,"supplementID":4},{"day":22,"supplementID":4},{"day":23,"supplementID":1},{"day":24,"supplementID":1},{"day":25,"supplementID":1},{"day":26,"supplementID":4},{"day":27,"supplementID":4},{"day":28,"supplementID":1},{"day":29,"supplementID":1},{"day":30,"supplementID":4},{"day":31,"supplementID":4},{"day":32,"supplementID":1},{"day":33,"supplementID":1},{"day":34,"supplementID":1},{"day":35,"supplementID":1},{"day":36,"supplementID":4},{"day":37,"supplementID":4},{"day":38,"supplementID":1},{"day":39,"supplementID":1},{"day":40,"supplementID":1},{"day":41,"supplementID":4},{"day":42,"supplementID":1},{"day":43,"supplementID":1},{"day":44,"supplementID":4},{"day":45,"supplementID":1},{"day":46,"supplementID":1},{"day":47,"supplementID":4},{"day":48,"supplementID":4},{"day":49,"supplementID":1},{"day":50,"supplementID":4},{"day":51,"supplementID":1},{"day":52,"supplementID":1},{"day":53,"supplementID":1},{"day":54,"supplementID":1},{"day":55,"supplementID":4},{"day":56,"supplementID":4},{"day":57,"supplementID":4},{"day":58,"supplementID":1},{"day":59,"supplementID":1},{"day":60,"supplementID":1},{"day":61,"supplementID":4},{"day":62,"supplementID":1},{"day":63,"supplementID":1},{"day":64,"supplementID":2},{"day":65,"supplementID":4},{"day":66,"supplementID":2},{"day":67,"supplementID":4},{"day":68,"supplementID":2},{"day":69,"supplementID":2},{"day":70,"supplementID":2},{"day":71,"supplementID":4},{"day":72,"supplementID":4},{"day":73,"supplementID":2},{"day":74,"supplementID":2},{"day":75,"supplementID":2},{"day":76,"supplementID":4},{"day":77,"supplementID":4},{"day":78,"supplementID":3},{"day":79,"supplementID":3},{"day":80,"supplementID":3},{"day":81,"supplementID":3},{"day":82,"supplementID":3},{"day":83,"supplementID":3},{"day":84,"supplementID":3}]}</script>
+
+<script>
+(function(){
+  const DATA = JSON.parse(document.getElementById('trainer-data').textContent);
+  const STORAGE_KEY = 'trainer_pwa_v1_state';
+  const APP_TITLE = 'Trainer';
+  const APP_SUBTITLE = '12 Week Plan';
+
+  // --- State management ---
+  let state = loadState();
+
+  function loadState(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e){}
+    return {
+      completedDays: {},   // key: "w<week>|<day>" -> {date, completedItems: [pKey...], totalItems: n}
+      sessionChecks: {},   // key: same -> [pKey...] (unsaved)
+      currentWeek: 1,
+      currentTab: 'plan'
+    };
+  }
+
+  function saveState(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  // --- Helpers ---
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const exerciseKey = s => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+  const findVideo = title => {
+    const key = exerciseKey(title);
+    const exercise = DATA.exercises.find(e => exerciseKey(e.name) === key);
+    return exercise && exercise.video ? exercise.video : null;
+  };
+  const todayStr = () => new Date().toLocaleDateString('en-CA');
+  const dayKey = (week, day) => `w${week}|${day}`;
+  const isRestDay = (day) => /rest/i.test(day);
+
+  function getDayItems(week, day) {
+    const w = DATA.plan[String(week)];
+    if (!w) return [];
+    return w[day] || [];
+  }
+
+  function openVideo(title, video) {
+    const modal = $('#video-modal');
+    const player = $('#video-player');
+    $('#video-title').textContent = title;
+    player.src = `videos/${encodeURIComponent(video)}`;
+    modal.hidden = false;
+    player.play().catch(() => {});
+  }
+
+  function closeVideo() {
+    const player = $('#video-player');
+    player.pause();
+    player.removeAttribute('src');
+    player.load();
+    $('#video-modal').hidden = true;
+  }
+
+  $('#video-close').addEventListener('click', closeVideo);
+  $('#video-modal').addEventListener('click', e => {
+    if (e.target.id === 'video-modal') closeVideo();
+  });
+
+  function isDayComplete(week, day) {
+    const items = getDayItems(week, day);
+    if (items.length === 0) return false;
+    if (isRestDay(day)) return !!state.completedDays[dayKey(week,day)];
+    const k = dayKey(week, day);
+    const rec = state.completedDays[k];
+    if (!rec) return false;
+    return rec.completedItems && rec.completedItems.length === items.length;
+  }
+
+  function isDayPartial(week, day) {
+    const k = dayKey(week, day);
+    const rec = state.completedDays[k];
+    if (rec) return false; // already completed
+    const checks = state.sessionChecks[k];
+    return checks && checks.length > 0;
+  }
+
+  function isWeekDone(week) {
+    const w = DATA.plan[String(week)];
+    if (!w) return false;
+    const days = DATA.dayOrder[String(week)];
+    return days.every(d => isDayComplete(week, d));
+  }
+
+  // --- Tab handling ---
+  $$('.tabbar button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.currentTab = btn.dataset.tab;
+      $$('.tabbar button').forEach(b => b.classList.toggle('active', b === btn));
+      saveState();
+      currentDayView = null;
+      render();
+    });
+  });
+
+  let currentDayView = null;  // {week, day} when viewing a workout
+  let currentExerciseFilter = null;
+
+  function setHeader(title, sub){
+    $('#hdr-title').textContent = title || APP_TITLE;
+    $('#hdr-sub').textContent = sub || APP_SUBTITLE;
+  }
+
+  // --- Renderers ---
+  function render(){
+    if (currentDayView) return renderWorkout();
+    switch(state.currentTab){
+      case 'plan': return renderPlan();
+      case 'exercises': return renderExercises();
+      case 'history': return renderHistory();
+      case 'more': return renderMore();
+    }
+  }
+
+  function renderPlan(){
+    setHeader(APP_TITLE, APP_SUBTITLE);
+    const main = $('#main');
+    const week = state.currentWeek;
+    
+    let html = '<div class="section-title">Select week</div>';
+    html += '<div class="week-strip">';
+    for (let w = 1; w <= 12; w++) {
+      const isActive = w === week;
+      const isDone = isWeekDone(w);
+      html += `<div class="week-chip ${isActive?'active':''} ${isDone?'done':''}" data-week="${w}"><span class="num">${w}</span>WEEK</div>`;
+    }
+    html += '</div>';
+
+    html += `<div class="section-title">Week ${week}</div>`;
+    const days = DATA.dayOrder[String(week)] || [];
+    days.forEach(d => {
+      const items = getDayItems(week, d);
+      const done = isDayComplete(week, d);
+      const partial = isDayPartial(week, d);
+      const rest = isRestDay(d);
+      const dayNum = d.match(/Day (\d+)/);
+      const badgeText = dayNum ? dayNum[1] : '?';
+      let metaText;
+      if (rest) metaText = 'Rest day';
+      else if (done) metaText = `Completed · ${items.length} items`;
+      else if (partial) {
+        const checked = (state.sessionChecks[dayKey(week,d)] || []).length;
+        metaText = `${checked} / ${items.length} done`;
+      } else metaText = `${items.length} items`;
+      html += `<div class="card tappable day-card ${done?'done':''} ${rest?'rest':''}" data-day="${esc(d)}">
+        <div class="day-badge">${badgeText}</div>
+        <div class="day-info">
+          <div class="t">${esc(d.replace(/^Day \d+: /,''))}</div>
+          <div class="m">${metaText}</div>
+        </div>
+        <div class="chev">›</div>
+      </div>`;
+    });
+
+    main.innerHTML = html;
+
+    $$('.week-chip').forEach(c => c.addEventListener('click', () => {
+      state.currentWeek = parseInt(c.dataset.week);
+      saveState();
+      render();
+    }));
+    $$('.day-card').forEach(c => c.addEventListener('click', () => {
+      currentDayView = { week, day: c.dataset.day };
+      render();
+    }));
+  }
+
+  function renderWorkout(){
+    const { week, day } = currentDayView;
+    const items = getDayItems(week, day);
+    const k = dayKey(week, day);
+    const completedRec = state.completedDays[k];
+    const sessionChecks = new Set(state.sessionChecks[k] || []);
+    const isCompletedAlready = !!completedRec;
+
+    if (isCompletedAlready) {
+      completedRec.completedItems.forEach(p => sessionChecks.add(p));
+    }
+
+    setHeader(day.replace(/^Day \d+: /,''), `Week ${week} · Day ${day.match(/\d+/)?.[0] || ''}`);
+    const main = $('#main');
+
+    let html = `<button class="back-btn" id="back">← Back to plan</button>`;
+
+    if (isRestDay(day) && items.length === 1 && items[0].title === '') {
+      // pure rest day
+      html += `<div class="card" style="text-align:center; padding:30px 20px;">
+        <div style="font-size:48px;">○</div>
+        <div style="font-size:18px; font-weight:600; margin:12px 0 6px;">Rest day</div>
+        <div style="color:#888; font-size:14px;">Recovery is part of the program.</div>
+      </div>`;
+      if (!isCompletedAlready) {
+        html += `<button class="btn btn-primary" id="rest-complete" style="width:100%; margin-top:10px;">Mark rest day done</button>`;
+      } else {
+        html += `<div class="note">Marked complete on ${esc(completedRec.date)}.<br><br><button class="btn btn-danger" id="undo-complete" style="margin-top:8px;">Undo completion</button></div>`;
+      }
+    } else {
+      const checkedCount = items.filter(i => sessionChecks.has(i.pKey)).length;
+      const pct = items.length ? Math.round(checkedCount/items.length*100) : 0;
+
+      html += `<div class="progress-text"><span>${checkedCount} / ${items.length} done</span><span>${pct}%</span></div>
+      <div class="progress-bar"><div style="width:${pct}%"></div></div>`;
+
+      items.forEach(it => {
+        const checked = sessionChecks.has(it.pKey);
+        let body = `<div class="ex-title">${esc(it.title || '(unnamed)')}</div>`;
+        if (it.line1) body += `<div class="ex-line">${esc(it.line1)}</div>`;
+        if (it.line2) body += `<div class="ex-line">${esc(it.line2)}</div>`;
+        const video = findVideo(it.title);
+        const videoButton = video ? `<button class="video-btn" data-video="${esc(video)}" data-title="${esc(it.title)}">Video</button>` : '';
+        html += `<div class="exercise-row ${checked?'done':''}" data-pkey="${it.pKey}">
+          <div class="checkbox ${checked?'checked':''}"></div>
+          <div class="ex-body">${body}</div>${videoButton}
+        </div>`;
+      });
+
+      if (!isCompletedAlready) {
+        html += `<div style="height:80px;"></div>`;
+        html += `<div class="complete-bar"><button class="btn btn-primary" id="complete-day">Mark day complete</button></div>`;
+      } else {
+        html += `<div class="note">Completed on ${esc(completedRec.date)}.<br>${completedRec.completedItems.length} of ${completedRec.totalItems} items checked.<br><br><button class="btn btn-danger" id="undo-complete">Undo completion</button></div>`;
+      }
+    }
+
+    main.innerHTML = html;
+
+    $('#back').addEventListener('click', () => { currentDayView = null; render(); });
+
+    $$('.exercise-row').forEach(row => {
+      const videoButton = row.querySelector('.video-btn');
+      if (videoButton) {
+        videoButton.addEventListener('click', e => {
+          e.stopPropagation();
+          openVideo(videoButton.dataset.title, videoButton.dataset.video);
+        });
+      }
+      if (isCompletedAlready) return;
+      row.addEventListener('click', () => {
+        const pKey = parseInt(row.dataset.pkey);
+        const arr = state.sessionChecks[k] || [];
+        const idx = arr.indexOf(pKey);
+        if (idx >= 0) arr.splice(idx,1); else arr.push(pKey);
+        state.sessionChecks[k] = arr;
+        saveState();
+        renderWorkout();
+      });
+    });
+
+    const cd = $('#complete-day');
+    if (cd) cd.addEventListener('click', () => {
+      const checks = state.sessionChecks[k] || [];
+      if (checks.length === 0 && !confirm('No items checked. Mark complete anyway?')) return;
+      state.completedDays[k] = {
+        date: todayStr(),
+        completedItems: [...checks],
+        totalItems: items.length
+      };
+      delete state.sessionChecks[k];
+      saveState();
+      currentDayView = null;
+      render();
+    });
+
+    const rc = $('#rest-complete');
+    if (rc) rc.addEventListener('click', () => {
+      state.completedDays[k] = { date: todayStr(), completedItems:[items[0].pKey], totalItems: 1 };
+      delete state.sessionChecks[k];
+      saveState();
+      currentDayView = null;
+      render();
+    });
+
+    const uc = $('#undo-complete');
+    if (uc) uc.addEventListener('click', () => {
+      if (!confirm('Undo completion for this day?')) return;
+      delete state.completedDays[k];
+      saveState();
+      renderWorkout();
+    });
+  }
+
+  function renderExercises(){
+    setHeader('Exercises', `${DATA.exercises.length} total`);
+    const main = $('#main');
+    let html = '';
+    DATA.muscles.forEach(m => {
+      const list = DATA.exercises.filter(e => e.muscleId === m.id);
+      if (!list.length) return;
+      html += `<div class="muscle-group">
+        <div class="muscle-name">${esc(m.name)} · ${list.length}</div>
+        <div class="muscle-list">`;
+      list.forEach(ex => {
+        html += `<div class="ex-item"><span class="ex-name">${esc(ex.name)}</span><button class="video-btn" data-video="${esc(ex.video || '')}" data-title="${esc(ex.name)}" ${ex.video ? '' : 'hidden'}>Video</button></div>`;
+      });
+      html += `</div></div>`;
+    });
+    // Show exercises that don't have a muscle id
+    const orphans = DATA.exercises.filter(e => !e.muscleId);
+    if (orphans.length) {
+      html += `<div class="muscle-group">
+        <div class="muscle-name">Other · ${orphans.length}</div>
+        <div class="muscle-list">`;
+      orphans.forEach(ex => {
+        html += `<div class="ex-item"><span class="ex-name">${esc(ex.name)} <span style="color:#666;font-size:12px;">(${esc(ex.category||'')})</span></span><button class="video-btn" data-video="${esc(ex.video || '')}" data-title="${esc(ex.name)}" ${ex.video ? '' : 'hidden'}>Video</button></div>`;
+      });
+      html += `</div></div>`;
+    }
+    main.innerHTML = html;
+    $$('.video-btn').forEach(button => button.addEventListener('click', () => {
+      openVideo(button.dataset.title, button.dataset.video);
+    }));
+  }
+
+  function renderHistory(){
+    const entries = Object.entries(state.completedDays).map(([k,v]) => {
+      const m = k.match(/^w(\d+)\|(.+)$/);
+      return { week: parseInt(m[1]), day: m[2], ...v, key: k };
+    });
+    setHeader('History', `${entries.length} day${entries.length===1?'':'s'} completed`);
+    const main = $('#main');
+    if (!entries.length) {
+      main.innerHTML = '<div class="empty">No completed days yet.<br>Complete a workout to see it here.</div>';
+      return;
+    }
+    entries.sort((a,b) => (b.date+b.key).localeCompare(a.date+a.key));
+    let html = '';
+    entries.forEach(e => {
+      html += `<div class="history-item">
+        <div class="h-date">${esc(e.date)}</div>
+        <div class="h-title">Week ${e.week} · ${esc(e.day.replace(/^Day \d+: /,''))}</div>
+        <div class="h-meta">${e.completedItems.length} / ${e.totalItems} item${e.totalItems===1?'':'s'} checked</div>
+      </div>`;
+    });
+    main.innerHTML = html;
+  }
+
+  function renderMore(){
+    setHeader('More', 'Settings & data');
+    const totalDays = Object.keys(state.completedDays).length;
+    const main = $('#main');
+    main.innerHTML = `
+      <div class="section-title">Progress</div>
+      <div class="card">
+        <div class="row-title">${totalDays} / 84 days completed</div>
+        <div class="progress-bar"><div style="width:${Math.min(100, totalDays/84*100).toFixed(1)}%"></div></div>
+        <div class="row-meta">${(totalDays/84*100).toFixed(1)}% of the 12-week plan</div>
+      </div>
+
+      <div class="section-title">Data</div>
+      <div class="kv-row" id="export-btn"><span class="l">Export progress</span><span class="r">JSON ›</span></div>
+      <div class="kv-row" id="import-btn"><span class="l">Import progress</span><span class="r">JSON ›</span></div>
+      <div class="kv-row" id="reset-btn" style="border-color:#3a1f1f; background:#1a0f0f;"><span class="l" style="color:#ff6b6b;">Reset all progress</span><span class="r" style="color:#ff6b6b;">›</span></div>
+
+      <div class="section-title">Install</div>
+      <div class="note">To use as an app on iPhone: open this page in Safari, tap the <strong>Share</strong> button, then <strong>Add to Home Screen</strong>. The icon will appear on your home screen and open like a native app.</div>
+
+      <div class="section-title">About</div>
+      <div class="card">
+        <div class="row-title">Trainer · 12 Week Plan</div>
+        <div class="row-meta">Personal use only. Workout content is the property of its original creator. Data stored locally on this device.</div>
+      </div>
+    `;
+
+    $('#export-btn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `trainer-progress-${todayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    $('#import-btn').addEventListener('click', () => {
+      const inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = '.json,application/json';
+      inp.onchange = (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = ev => {
+          try {
+            const d = JSON.parse(ev.target.result);
+            if (d && typeof d === 'object' && d.completedDays) {
+              if (!confirm('Replace current progress with imported data?')) return;
+              state = Object.assign({completedDays:{}, sessionChecks:{}, currentWeek:1, currentTab:'more'}, d);
+              saveState();
+              render();
+              alert('Imported successfully.');
+            } else alert('That doesn\'t look like a Trainer progress file.');
+          } catch(err) { alert('Could not read file: ' + err.message); }
+        };
+        r.readAsText(f);
+      };
+      inp.click();
+    });
+
+    $('#reset-btn').addEventListener('click', () => {
+      if (!confirm('Reset ALL progress? This cannot be undone.')) return;
+      if (!confirm('Really reset everything? Export first if you want a backup.')) return;
+      state = { completedDays:{}, sessionChecks:{}, currentWeek:1, currentTab:'more' };
+      saveState();
+      render();
+    });
+  }
+
+  // initial tab state
+  $$('.tabbar button').forEach(b => b.classList.toggle('active', b.dataset.tab === state.currentTab));
+  render();
+})();
+</script>
+</body>
+</html>
