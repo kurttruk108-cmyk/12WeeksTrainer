@@ -274,12 +274,6 @@ nav.tabbar button .ico {
   font-size: 13px;
   line-height: 1.4;
 }
-.video-open-link {
-  display: inline-block;
-  margin-top: 10px;
-  color: #f5a623;
-  font-size: 13px;
-}
 .video-close {
   position: absolute;
   margin: -2px 0 0 -38px;
@@ -336,7 +330,7 @@ nav.tabbar button .ico {
 }
 
 .complete-bar {
-  position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: calc(70px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
   width: calc(100% - 32px); max-width: 448px;
   z-index: 15;
   padding: 0 16px;
@@ -424,7 +418,7 @@ nav.tabbar button .ico {
     transform: none;
     width: min(360px, calc(100% - 300px));
     max-width: none;
-    bottom: 28px;
+    bottom: calc(28px + env(safe-area-inset-bottom));
   }
   .video-dialog { width: min(80vw, 760px); }
 }
@@ -452,7 +446,6 @@ nav.tabbar button .ico {
       <p class="video-error">此瀏覽器無法播放 MP4 影片。</p>
     </video>
     <div class="video-error" id="video-error" hidden></div>
-    <a class="video-open-link" id="video-open-link" target="_blank" rel="noopener">在新分頁開啟影片</a>
   </div>
 </div>
 
@@ -463,6 +456,15 @@ nav.tabbar button .ico {
   const DATA = JSON.parse(document.getElementById('trainer-data').textContent);
   const STORAGE_KEY = 'trainer_pwa_v1_state';
   const VIDEO_BASE_URL = 'https://raw.githubusercontent.com/kurttruk108-cmyk/12WeeksTrainer/main/';
+  const AVAILABLE_VIDEOS = new Set([
+    'SKIPgiantsuperset.mp4', 'benchdips.mp4', 'bentoverbarbellrow.mp4',
+    'bentovertwodumbbellrow.mp4', 'closedgripbenchpresses.mp4', 'concentrationcurls.mp4',
+    'dumbelllunges.mp4', 'dumbellonearmshoulderpress.mp4', 'ezbarcurl.mp4',
+    'frontplateraise.mp4', 'inclinedumbbellflyswithtwist.mp4',
+    'lyingdumbbelltricepextension.mp4', 'modifiedpushup.mp4', 'pushupscloseandwide.mp4',
+    'rockers.mp4', 'skullcrusher.mp4', 'spidercurl.mp4', 'triceppushdown.mp4',
+    'tricepspushdownvbar.mp4'
+  ]);
   const APP_TITLE = 'Trainer';
   const APP_SUBTITLE = '12 Week Plan';
 
@@ -494,7 +496,7 @@ nav.tabbar button .ico {
   const findVideo = title => {
     const key = exerciseKey(title);
     const exercise = DATA.exercises.find(e => exerciseKey(e.name) === key);
-    return exercise && exercise.video ? exercise.video : null;
+    return exercise && AVAILABLE_VIDEOS.has(exercise.video) ? exercise.video : null;
   };
   const todayStr = () => new Date().toLocaleDateString('en-CA');
   const dayKey = (week, day) => `w${week}|${day}`;
@@ -510,13 +512,11 @@ nav.tabbar button .ico {
     const modal = $('#video-modal');
     const player = $('#video-player');
     const error = $('#video-error');
-    const openLink = $('#video-open-link');
     $('#video-title').textContent = title;
     error.hidden = true;
     error.textContent = '';
     player.type = 'video/mp4';
     player.src = `${VIDEO_BASE_URL}${encodeURIComponent(video)}`;
-    openLink.href = player.src;
     modal.hidden = false;
     player.load();
   }
@@ -772,7 +772,8 @@ nav.tabbar button .ico {
         <div class="muscle-name">${esc(m.name)} · ${list.length}</div>
         <div class="muscle-list">`;
       list.forEach(ex => {
-        html += `<div class="ex-item"><span class="ex-name">${esc(ex.name)}</span><button class="video-btn" data-video="${esc(ex.video || '')}" data-title="${esc(ex.name)}" ${ex.video ? '' : 'hidden'}>Video</button></div>`;
+        const hasVideo = AVAILABLE_VIDEOS.has(ex.video);
+        html += `<div class="ex-item"><span class="ex-name">${esc(ex.name)}</span><button class="video-btn" data-video="${esc(ex.video || '')}" data-title="${esc(ex.name)}" ${hasVideo ? '' : 'hidden'}>Video</button></div>`;
       });
       html += `</div></div>`;
     });
@@ -783,7 +784,8 @@ nav.tabbar button .ico {
         <div class="muscle-name">Other · ${orphans.length}</div>
         <div class="muscle-list">`;
       orphans.forEach(ex => {
-        html += `<div class="ex-item"><span class="ex-name">${esc(ex.name)} <span style="color:#666;font-size:12px;">(${esc(ex.category||'')})</span></span><button class="video-btn" data-video="${esc(ex.video || '')}" data-title="${esc(ex.name)}" ${ex.video ? '' : 'hidden'}>Video</button></div>`;
+        const hasVideo = AVAILABLE_VIDEOS.has(ex.video);
+        html += `<div class="ex-item"><span class="ex-name">${esc(ex.name)} <span style="color:#666;font-size:12px;">(${esc(ex.category||'')})</span></span><button class="video-btn" data-video="${esc(ex.video || '')}" data-title="${esc(ex.name)}" ${hasVideo ? '' : 'hidden'}>Video</button></div>`;
       });
       html += `</div></div>`;
     }
