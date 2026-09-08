@@ -330,13 +330,10 @@ nav.tabbar button .ico {
 }
 
 .complete-bar {
-  position: fixed;
-  bottom: calc(76px + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px); max-width: 448px;
-  z-index: 25;
-  padding: 0 16px;
+  position: relative;
+  width: 100%;
+  margin: 24px 0 8px;
+  padding: 0;
 }
 .complete-bar .btn-primary { width: 100%; padding: 14px; font-size: 16px; box-shadow: 0 6px 20px rgba(245,166,35,0.3);}
 
@@ -416,13 +413,9 @@ nav.tabbar button .ico {
   nav.tabbar button.active { background: #241b0d; }
   nav.tabbar button .ico { font-size: 20px; }
   .complete-bar {
-    left: auto;
-    right: 40px;
-    transform: none;
-    width: min(360px, calc(100% - 300px));
+    width: min(360px, 100%);
+    margin: 28px 0 8px auto;
     max-width: none;
-    bottom: calc(28px + env(safe-area-inset-bottom));
-    z-index: 25;
   }
   .video-dialog { width: min(80vw, 760px); }
 }
@@ -835,8 +828,6 @@ nav.tabbar button .ico {
       </div>
 
       <div class="section-title">Data</div>
-      <div class="kv-row" id="export-btn"><span class="l">Export progress</span><span class="r">JSON ›</span></div>
-      <div class="kv-row" id="import-btn"><span class="l">Import progress</span><span class="r">JSON ›</span></div>
       <div class="kv-row" id="reset-btn" style="border-color:#3a1f1f; background:#1a0f0f;"><span class="l" style="color:#ff6b6b;">Reset all progress</span><span class="r" style="color:#ff6b6b;">›</span></div>
 
       <div class="section-title">Install</div>
@@ -848,41 +839,6 @@ nav.tabbar button .ico {
         <div class="row-meta">Personal use only. Workout content is the property of its original creator. Data stored locally on this device.</div>
       </div>
     `;
-
-    $('#export-btn').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `trainer-progress-${todayStr()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    $('#import-btn').addEventListener('click', () => {
-      const inp = document.createElement('input');
-      inp.type = 'file';
-      inp.accept = '.json,application/json';
-      inp.onchange = (e) => {
-        const f = e.target.files[0];
-        if (!f) return;
-        const r = new FileReader();
-        r.onload = ev => {
-          try {
-            const d = JSON.parse(ev.target.result);
-            if (d && typeof d === 'object' && d.completedDays) {
-              if (!confirm('Replace current progress with imported data?')) return;
-              state = Object.assign({completedDays:{}, sessionChecks:{}, currentWeek:1, currentTab:'more'}, d);
-              saveState();
-              render();
-              alert('Imported successfully.');
-            } else alert('That doesn\'t look like a Trainer progress file.');
-          } catch(err) { alert('Could not read file: ' + err.message); }
-        };
-        r.readAsText(f);
-      };
-      inp.click();
-    });
 
     $('#reset-btn').addEventListener('click', () => {
       if (!confirm('Reset ALL progress? This cannot be undone.')) return;
