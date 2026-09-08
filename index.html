@@ -221,6 +221,23 @@ nav.tabbar button .ico {
   margin: 18px 4px 8px;
   font-weight: 600;
 }
+.term-card {
+  background: #141414;
+  border: 1px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.term-card h2 {
+  color: #f5a623;
+  font-size: 16px;
+  margin: 0 0 5px;
+}
+.term-card p {
+  color: #b5b5b5;
+  font-size: 14px;
+  margin: 0;
+}
 
 .progress-bar {
   height: 4px; background: #1f1f1f; border-radius: 2px;
@@ -449,6 +466,7 @@ nav.tabbar button .ico {
     <button data-tab="plan" class="active"><span class="ico">▦</span><span>Plan</span></button>
     <button data-tab="exercises"><span class="ico">≡</span><span>Exercises</span></button>
     <button data-tab="history"><span class="ico">◷</span><span>History</span></button>
+    <button data-tab="guide"><span class="ico">?</span><span>Guide</span></button>
     <button data-tab="more"><span class="ico">⚙</span><span>More</span></button>
   </nav>
 </div>
@@ -604,6 +622,7 @@ nav.tabbar button .ico {
       case 'plan': return renderPlan();
       case 'exercises': return renderExercises();
       case 'history': return renderHistory();
+      case 'guide': return renderGuide();
       case 'more': return renderMore();
     }
   }
@@ -837,6 +856,27 @@ nav.tabbar button .ico {
       </div>`;
     });
     main.innerHTML = html;
+  }
+
+  function renderGuide(){
+    setHeader('Guide', 'Training set terms');
+    const main = $('#main');
+    const terms = [
+      ['Normal Sets', '一般組。完成一個動作的一組後休息，再開始下一組，按正常順序完成所有組數。'],
+      ['Superset', '超級組。兩個動作連續完成，中間不休息或只短暫休息，再休息後重複。'],
+      ['Giant Set', '巨型組。三個或以上動作連續完成，通常針對同一肌群或同一訓練目標。'],
+      ['Triset', '三連組。三個動作連續完成；本計畫若有標示，會在每日 Plan 中獨立顯示。'],
+      ['Circuit', '循環訓練。依序完成一連串動作，完成整輪後再休息，按指定輪數重複。'],
+      ['Working Set', '正式組。完成熱身後，以計畫指定重量、次數或強度完成的主要訓練組。'],
+      ['Pyramid Set', '金字塔組。逐組增加或調整重量，同時通常逐步降低次數。'],
+      ['Drop Set', '遞減組。完成一組接近力竭後立即降低重量，再繼續完成更多次數。'],
+      ['Pyramid/Drop Set', '金字塔與遞減組的混合方式，依每日 Plan 中的文字說明執行。'],
+      ['DTP Set', 'DTP（Dramatic Transformation Principle）組，以高低次數交替及較短休息安排訓練。'],
+      ['DTP Superset', 'DTP 超級組，將 DTP 的次數/休息安排與兩個動作連續完成結合。']
+    ];
+    main.innerHTML = `<div class="section-title">How to read your plan</div>
+      <div class="note">每個訓練日會按照原始計畫的組合標籤分組顯示。次數、重量、休息時間以每個動作下方的說明為準。</div>
+      ${terms.map(([title, description]) => `<section class="term-card"><h2>${esc(title)}</h2><p>${esc(description)}</p></section>`).join('')}`;
   }
 
   function renderMore(){
