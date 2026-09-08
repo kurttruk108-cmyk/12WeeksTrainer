@@ -25,7 +25,7 @@ body {
   -webkit-user-select: none;
   overscroll-behavior-y: contain;
 }
-#app { width: 100%; max-width: 1180px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 64px; }
+#app { width: 100%; max-width: 1180px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 header {
   padding: 16px clamp(16px, 4vw, 32px) 8px;
   position: sticky; top: 0;
@@ -38,7 +38,7 @@ header {
 header h1 { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
 header .sub { font-size: 13px; color: #888; margin-top: 2px; }
 
-main { flex: 1; width: 100%; padding: 12px clamp(16px, 4vw, 32px) 20px; }
+main { flex: 1; width: 100%; padding: 12px clamp(16px, 4vw, 32px) calc(112px + env(safe-area-inset-bottom)); }
 
 nav.tabbar {
   position: fixed;
@@ -330,9 +330,12 @@ nav.tabbar button .ico {
 }
 
 .complete-bar {
-  position: fixed; bottom: calc(70px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  position: fixed;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
   width: calc(100% - 32px); max-width: 448px;
-  z-index: 15;
+  z-index: 25;
   padding: 0 16px;
 }
 .complete-bar .btn-primary { width: 100%; padding: 14px; font-size: 16px; box-shadow: 0 6px 20px rgba(245,166,35,0.3);}
@@ -376,7 +379,7 @@ nav.tabbar button .ico {
   header .sub { font-size: 14px; }
   main {
     max-width: 960px;
-    padding: 20px 40px 40px;
+    padding: 20px 40px 48px;
   }
   nav.tabbar {
     position: fixed;
@@ -419,6 +422,7 @@ nav.tabbar button .ico {
     width: min(360px, calc(100% - 300px));
     max-width: none;
     bottom: calc(28px + env(safe-area-inset-bottom));
+    z-index: 25;
   }
   .video-dialog { width: min(80vw, 760px); }
 }
