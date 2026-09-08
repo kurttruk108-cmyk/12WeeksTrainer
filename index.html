@@ -268,6 +268,18 @@ nav.tabbar button .ico {
   border-radius: 9px;
   background: #000;
 }
+.video-error {
+  margin-top: 10px;
+  color: #ffb4b4;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.video-open-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: #f5a623;
+  font-size: 13px;
+}
 .video-close {
   position: absolute;
   margin: -2px 0 0 -38px;
@@ -436,7 +448,11 @@ nav.tabbar button .ico {
   <div class="video-dialog" role="dialog" aria-modal="true" aria-labelledby="video-title">
     <button class="video-close" id="video-close" aria-label="Close video">×</button>
     <h2 id="video-title"></h2>
-    <video id="video-player" controls playsinline preload="metadata"></video>
+    <video id="video-player" controls playsinline preload="metadata">
+      <p class="video-error">此瀏覽器無法播放 MP4 影片。</p>
+    </video>
+    <div class="video-error" id="video-error" hidden></div>
+    <a class="video-open-link" id="video-open-link" target="_blank" rel="noopener">在新分頁開啟影片</a>
   </div>
 </div>
 
@@ -446,6 +462,7 @@ nav.tabbar button .ico {
 (function(){
   const DATA = JSON.parse(document.getElementById('trainer-data').textContent);
   const STORAGE_KEY = 'trainer_pwa_v1_state';
+  const VIDEO_BASE_URL = 'https://raw.githubusercontent.com/kurttruk108-cmyk/12WeeksTrainer/main/';
   const APP_TITLE = 'Trainer';
   const APP_SUBTITLE = '12 Week Plan';
 
@@ -492,10 +509,16 @@ nav.tabbar button .ico {
   function openVideo(title, video) {
     const modal = $('#video-modal');
     const player = $('#video-player');
+    const error = $('#video-error');
+    const openLink = $('#video-open-link');
     $('#video-title').textContent = title;
-    player.src = `videos/${encodeURIComponent(video)}`;
+    error.hidden = true;
+    error.textContent = '';
+    player.type = 'video/mp4';
+    player.src = `${VIDEO_BASE_URL}${encodeURIComponent(video)}`;
+    openLink.href = player.src;
     modal.hidden = false;
-    player.play().catch(() => {});
+    player.load();
   }
 
   function closeVideo() {
@@ -507,6 +530,11 @@ nav.tabbar button .ico {
   }
 
   $('#video-close').addEventListener('click', closeVideo);
+  $('#video-player').addEventListener('error', () => {
+    const error = $('#video-error');
+    error.textContent = 'GitHub 找不到這個影片檔案。請確認 MP4 已上傳到 12WeeksTrainer repository 的 main branch 根目錄。';
+    error.hidden = false;
+  });
   $('#video-modal').addEventListener('click', e => {
     if (e.target.id === 'video-modal') closeVideo();
   });
